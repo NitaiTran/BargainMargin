@@ -3888,6 +3888,7 @@ id easeInOut
 id easeOut
 id east
 id edge
+id editBalanceGoal
 id edit_query
 id edit_text_id
 id elastic

@@ -4,7 +4,7 @@
             "outputFile": "com.progprof.bargainmargintemplate.app-mergeDebugResources-49:/values-v35/values-v35.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\nitai\\.gradle\\caches\\8.13\\transforms\\43dcc317661c95f5d1071de9e06f6111\\transformed\\material-1.13.0\\res\\values-v35\\values-v35.xml",
+                    "source": "C:\\Users\\migue\\.gradle\\caches\\8.13\\transforms\\5bd3f1c92ce40360368c6d15b9e0bb2b\\transformed\\material-1.13.0\\res\\values-v35\\values-v35.xml",
                     "from": {
                         "startLines": "2,3,4,5",
                         "startColumns": "4,4,4,4",
