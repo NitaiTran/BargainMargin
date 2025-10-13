@@ -4,17 +4,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.progprof.bargainmargintemplate.databinding.FragmentHomeBinding
 
+
+
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
 
     private var currentValue = 0.0 //Holds current num that will be displayed, JMoraHi
@@ -25,6 +26,7 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
         val homeViewModel =
             ViewModelProvider(this).get(HomeViewModel::class.java)
 
@@ -35,6 +37,18 @@ class HomeFragment : Fragment() {
         homeViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
         }
+
+        val progressBarview: ProgressBar = binding.progressBarHome
+        homeViewModel.progressValue.observe(viewLifecycleOwner)
+        {
+            progressBarview.progress = it
+        }
+
+        homeViewModel.maxValue.observe(viewLifecycleOwner)
+        {
+            progressBarview.max = it
+        }
+
         return root
     }
 
