@@ -21,6 +21,7 @@ id nav_view
 id navigation_dashboard
 id navigation_home
 id navigation_notifications
+id progressBar_home
 id text_dashboard
 id text_home
 id text_notifications
