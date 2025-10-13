@@ -1,18 +1,23 @@
 package com.progprof.bargainmargintemplate.ui.home
 
+import android.animation.ObjectAnimator
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.progprof.bargainmargintemplate.R
 import com.progprof.bargainmargintemplate.databinding.FragmentHomeBinding
+
+
 
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
-
+    private lateinit var myProgressBar: ProgressBar
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
@@ -22,6 +27,7 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
         val homeViewModel =
             ViewModelProvider(this).get(HomeViewModel::class.java)
 
@@ -32,6 +38,18 @@ class HomeFragment : Fragment() {
         homeViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
         }
+
+        val progressBarview: ProgressBar = binding.progressBarHome
+        homeViewModel.progressValue.observe(viewLifecycleOwner)
+        {
+            progressBarview.progress = it
+        }
+
+        homeViewModel.maxValue.observe(viewLifecycleOwner)
+        {
+            progressBarview.max = it
+        }
+
         return root
     }
 
