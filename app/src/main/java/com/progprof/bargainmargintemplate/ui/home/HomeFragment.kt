@@ -17,6 +17,8 @@ class HomeFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
+
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -34,6 +36,8 @@ class HomeFragment : Fragment() {
         }
         return root
     }
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()
