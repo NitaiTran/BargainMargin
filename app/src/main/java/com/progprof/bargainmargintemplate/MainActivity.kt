@@ -3,11 +3,17 @@ package com.progprof.bargainmargintemplate
 import android.os.Bundle
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.progprof.bargainmargintemplate.databinding.ActivityMainBinding
+import android.widget.EditText
+import android.view.inputmethod.EditorInfo
+import android.widget.Toast
 
 class MainActivity : AppCompatActivity() {
 
@@ -20,6 +26,31 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val navView: BottomNavigationView = binding.navView
+        val balanceInput = findViewById<EditText>(R.id.editBalanceGoal)
+        var balance : Int
+
+        balanceInput.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_DONE)
+            {
+                val balanceText = balanceInput.toString()
+                val value = balanceText.toIntOrNull() ?: 0
+                balance = value
+                true
+            }
+            else
+            {
+                false
+            }
+        }
+
+
+
+//        val balanceText = balanceInput.toString()
+//
+//        if (balanceText.isNotEmpty())
+//        {
+//            balance = balanceText.toIntOrNull() ?: 0
+//        }
 
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         // Passing each menu ID as a set of Ids because each
