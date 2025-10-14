@@ -28,10 +28,9 @@ class DashboardFragment : Fragment() {
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textDashboard
-        dashboardViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
+        // this is responsible for the scroll test
+        val textView: TextView = binding.textDashboard  // or textNotifications
+        textView.text = (1..50).joinToString("\n") { "Line $it: Scroll test!" }
         return root
     }
 
