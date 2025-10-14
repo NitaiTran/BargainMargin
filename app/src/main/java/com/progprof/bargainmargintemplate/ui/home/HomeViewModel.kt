@@ -10,7 +10,7 @@ import com.progprof.bargainmargintemplate.myBudget
 
 class HomeViewModel : ViewModel() {
     val budgetHomeViewModel = myBudget(75, 100)
-
+    // comment
     private val _text = MutableLiveData<String>().apply {
 
         value = "Budget Remaining: " + budgetHomeViewModel.remainingBudget + "/" + budgetHomeViewModel.totalBudget
