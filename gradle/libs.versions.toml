@@ -12,7 +12,8 @@ lifecycleLivedataKtx = "2.9.4"
 lifecycleViewmodelKtx = "2.9.4"
 navigationFragmentKtx = "2.6.0"
 navigationUiKtx = "2.6.0"
-runtime = "1.9.2"
+
+runtime = "1.9.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
