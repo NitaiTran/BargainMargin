@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "BargainMarginTemplate"
+rootProject.name = "Bargain Margin"
 include(":app")
  
