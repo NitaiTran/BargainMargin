@@ -23,6 +23,7 @@ import com.progprof.bargainmargintemplate.ui.theme.AppTheme
 
 @Composable
 fun FirstBudgetScreen(
+    onNextButtonClicked: () -> Unit, // Add a parameter to handle the navigation event,Sprint 2, Jose
     modifier: Modifier = Modifier,
     initialScreenViewModel: BudgetViewModel = viewModel()
 ) {
@@ -36,7 +37,7 @@ fun FirstBudgetScreen(
             modifier = modifier
         )
         CalculateButton(
-            onClick = {initialScreenViewModel.calculateWeeklyBudget()},
+            onClick = onNextButtonClicked, // Call the navigation event handler,Sprint 2, Jose
             modifier = modifier
         )
     }
@@ -132,10 +133,10 @@ fun RadioGroup(
         }
     }
 }
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    AppTheme {
-        FirstBudgetScreen()
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun GreetingPreview() {
+//    AppTheme {
+//        FirstBudgetScreen()
+//    }
+//}
