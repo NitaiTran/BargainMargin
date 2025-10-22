@@ -9,44 +9,13 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a60b997b-16cd-49de-a84e-689e7ce6c120" name="Changes" comment="Adding the .gitignore file to the gitHub">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules/app/BargainMarginTemplate.app.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/BudgetViewModel.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/FirstBudgetScreen.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/theme/Color.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/theme/Theme.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/theme/Type.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="a60b997b-16cd-49de-a84e-689e7ce6c120" name="Changes" comment="Edited how the app navigates so you start with the budget screen and THEN going to home">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/app/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/MainActivity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/myBudget.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/dashboard/DashboardFragment.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/dashboard/DashboardViewModel.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/home/HomeFragment.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/home/HomeViewModel.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/notifications/NotificationsFragment.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/notifications/NotificationsViewModel.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_dashboard.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_home.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_notifications.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/menu/bottom_nav_menu.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/navigation/mobile_navigation.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/values-night/themes.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/dimens.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/themes.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/themes.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/libs.versions.toml" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/libs.versions.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradlew.bat" beforeDir="false" afterPath="$PROJECT_DIR$/gradlew.bat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/local.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/BudgetScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/BudgetScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/BudgetViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/BudgetViewModel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/HomeScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/HomeScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/SplitBudgetScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/SplitBudgetScreen.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -80,6 +49,16 @@
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/NitaiTran/BargainMargin&quot;,
     &quot;accountId&quot;: &quot;2eed9554-ce6f-4005-8c2a-7853248708fa&quot;
+  },
+  &quot;recentNewPullRequestHead&quot;: {
+    &quot;server&quot;: {
+      &quot;useHttp&quot;: false,
+      &quot;host&quot;: &quot;github.com&quot;,
+      &quot;port&quot;: null,
+      &quot;suffix&quot;: null
+    },
+    &quot;owner&quot;: &quot;NitaiTran&quot;,
+    &quot;repository&quot;: &quot;BargainMargin&quot;
   }
 }</component>
   <component name="ProblemsViewState">
@@ -106,17 +85,17 @@
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
-    "git-widget-placeholder": "Sprint2Tran",
-    "last_opened_file_path": "C:/Users/nitai/AndroidStudioProjects/BargainMargin/app/src/main/res/values",
-    "settings.editor.selected.configurable": "AndroidSdkUpdater"
+    "git-widget-placeholder": "#53 on Sprint2Tran",
+    "last_opened_file_path": "C:/Users/nitai/AndroidStudioProjects/BargainMargin/app/src/main/java/com/progprof/bargainmargintemplate/ui",
+    "settings.editor.selected.configurable": "live.edit.configurable"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\nitai\AndroidStudioProjects\BargainMargin\app\src\main\java\com\progprof\bargainmargintemplate\ui" />
       <recent name="C:\Users\nitai\AndroidStudioProjects\BargainMargin\app\src\main\res\values" />
       <recent name="C:\Users\nitai\AndroidStudioProjects\BargainMargin" />
       <recent name="C:\Users\nitai\AndroidStudioProjects\BargainMargin\app\src\main\java\com\progprof\bargainmargintemplate" />
-      <recent name="C:\Users\nitai\AndroidStudioProjects\BargainMargin\app\src\main\java\com\progprof\bargainmargintemplate\ui" />
     </key>
   </component>
   <component name="RunManager" selected="Android App.app">
@@ -281,7 +260,23 @@
       <option name="project" value="LOCAL" />
       <updated>1760551808106</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Refactored into jetpack format. Added extremely basic code">
+      <option name="closed" value="true" />
+      <created>1760564044817</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1760564044817</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Edited how the app navigates so you start with the budget screen and THEN going to home">
+      <option name="closed" value="true" />
+      <created>1761149734057</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1761149734057</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -309,7 +304,9 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Adding the .gitignore file to the gitHub" />
-    <option name="LAST_COMMIT_MESSAGE" value="Adding the .gitignore file to the gitHub" />
+    <MESSAGE value="Refactored into jetpack format. Added extremely basic code" />
+    <MESSAGE value="Edited how the app navigates so you start with the budget screen and THEN going to home" />
+    <option name="LAST_COMMIT_MESSAGE" value="Edited how the app navigates so you start with the budget screen and THEN going to home" />
   </component>
   <component name="play_dynamic_filters_status">
     <option name="appIdToCheckInfo">
