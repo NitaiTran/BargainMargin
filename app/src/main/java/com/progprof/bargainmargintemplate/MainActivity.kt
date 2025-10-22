@@ -10,12 +10,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
-
 import androidx.navigation.compose.NavHost //if red, do a gradle sync
 import androidx.navigation.compose.composable
-
 import com.progprof.bargainmargintemplate.ui.* //imports everything from the ui package
-
 import com.progprof.bargainmargintemplate.ui.theme.AppTheme
 
 
@@ -47,7 +44,7 @@ fun BargainMarginApp() {
 
     NavHost(
         navController = navController, // The NavController
-        startDestination = ScreenController.Screen.Home.name // The first screen to show
+        startDestination = ScreenController.Screen.MainBudgetEntry.name // The first screen to show
     ){
         //Define Home screen
         composable(route = ScreenController.Screen.Home.name){
@@ -57,7 +54,7 @@ fun BargainMarginApp() {
             )
         }
 
-        //Define the first screen
+        //Define the Main Budget Screen
         composable(route = ScreenController.Screen.MainBudgetEntry.name){
             BudgetScreen(
                 initialScreenViewModel = budgetViewModel,
@@ -65,15 +62,24 @@ fun BargainMarginApp() {
                     // 1. Set the budget in the ViewModel
                     budgetViewModel.setInitialBudget()
                     // 2. Navigate to Home screen
-                    navController.popBackStack()
+                    navController.navigate(ScreenController.Screen.SplitMainBudget.name)
                 }
             )
         }
 
-        // Define the second screen
+        // Define the Split Main Budget Screen
         composable(route = ScreenController.Screen.SplitMainBudget.name) {
-           SplitBudgetScreen(budgetViewModel = budgetViewModel)
+           SplitBudgetScreen(
+               budgetViewModel = budgetViewModel,
+               onNextButtonClicked = {
+                   // 1. Set the budget in the ViewModel
+                   budgetViewModel.setInitialBudget()
+                   // 2. Navigate to the next screen
+                   navController.navigate(ScreenController.Screen.Home.name)
+               }
+           )
         }
+
 
         // Define Expense Tracking screen
         composable(route = ScreenController.Screen.ExpenseTracking.name) {
