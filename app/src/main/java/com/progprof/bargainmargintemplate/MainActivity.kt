@@ -14,10 +14,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost //if red, do a gradle sync
 import androidx.navigation.compose.composable
 
-import com.progprof.bargainmargintemplate.ui.BudgetViewModel //import the files of this projects to use here
-import com.progprof.bargainmargintemplate.ui.FirstBudgetScreen
-import com.progprof.bargainmargintemplate.ui.ScreenController
-import com.progprof.bargainmargintemplate.ui.SplitBudgetScreen
+import com.progprof.bargainmargintemplate.ui.* //imports everything from the ui package
 
 import com.progprof.bargainmargintemplate.ui.theme.AppTheme
 
@@ -49,19 +46,26 @@ fun BargainMarginApp() {
     val budgetViewModel: BudgetViewModel = viewModel()
 
     NavHost(
-        navController = navController,
-        startDestination = ScreenController.Screen.MainBudgetEntry.name // The first screen to show
+        navController = navController, // The NavController
+        startDestination = ScreenController.Screen.Home.name // The first screen to show
     ){
+        //Define Home screen
+        composable(route = ScreenController.Screen.Home.name){
+            HomeScreen(
+                navController = navController,
+                budgetViewModel = budgetViewModel
+            )
+        }
+
         //Define the first screen
         composable(route = ScreenController.Screen.MainBudgetEntry.name){
-            FirstBudgetScreen(
-
+            BudgetScreen(
                 initialScreenViewModel = budgetViewModel,
                 onNextButtonClicked = {
                     // 1. Set the budget in the ViewModel
                     budgetViewModel.setInitialBudget()
-                    // 2. Navigate to the next screen
-                    navController.navigate(ScreenController.Screen.SplitMainBudget.name)
+                    // 2. Navigate to Home screen
+                    navController.popBackStack()
                 }
             )
         }
@@ -71,6 +75,25 @@ fun BargainMarginApp() {
            SplitBudgetScreen(budgetViewModel = budgetViewModel)
         }
 
+        // Define Expense Tracking screen
+        composable(route = ScreenController.Screen.ExpenseTracking.name) {
+            ExpenseTrackingScreen(navController = navController)
+        }
+
+        // Define Analytics screen
+        composable(route = ScreenController.Screen.Analytics.name) {
+            AnalyticsScreen(navController = navController)
+        }
+
+        // Define Categories screen
+        composable(route = ScreenController.Screen.Categories.name) {
+            CategoriesScreen(navController = navController)
+        }
+
+        // Define Settings screen
+        composable(route = ScreenController.Screen.Settings.name) {
+            SettingsScreen(navController = navController)
+        }
     }
 
 }

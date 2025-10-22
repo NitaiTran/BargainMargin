@@ -15,14 +15,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.semantics.Role
 import androidx.lifecycle.viewmodel.compose.viewModel
 
-import com.progprof.bargainmargintemplate.ui.theme.AppTheme
-
 @Composable
-fun FirstBudgetScreen(
+fun BudgetScreen(
     onNextButtonClicked: () -> Unit, // Add a parameter to handle the navigation event,Sprint 2, Jose
     modifier: Modifier = Modifier,
     initialScreenViewModel: BudgetViewModel = viewModel()

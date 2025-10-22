@@ -12,7 +12,8 @@ class BudgetViewModel : ViewModel() {
     var monthlyRemainingBudget by mutableDoubleStateOf(0.0)
     var categories by mutableStateOf("") //User states number of categories to split into
 
-    var weekBudget = 0.0
+    val weeklyBudget :  Double
+        get() = if (monthlyRemainingBudget > 0) monthlyRemainingBudget / 4.0 else 0.0
         //private set
 
 
