@@ -10,25 +10,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 
 @Composable
 fun SplitBudgetScreen (
+    budgetViewModel: BudgetViewModel = viewModel(),
     onNextButtonClicked: () -> Unit, // Add a parameter to handle the navigation event,Sprint 2, Jose
-    modifier: Modifier = Modifier,
-    budgetViewModel: BudgetViewModel = viewModel()
+
 ) {
-    Column ( modifier = modifier.padding(16.dp) ){
+    Column ( modifier = Modifier.padding(16.dp) ){
         Text(
             text = "Split your budget",
             fontSize = 24.sp,
-            modifier = modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 16.dp)
         )
 
         // Display the total budget entered on the previous screen
         Text(
-            text = "Total Budget: $${budgetViewModel.monthlyRemainingBudget}",
+            text = "Total Budget: $${budgetViewModel.monthlyRemainingBudget}/${budgetViewModel.totalRemainingBudget}",
             fontSize = 18.sp,
-            modifier = modifier.padding(bottom = 24.dp)
+            modifier = Modifier.padding(bottom = 24.dp)
         )
 
         // Use the existing NumberField to ask for the number of categories
@@ -36,12 +37,12 @@ fun SplitBudgetScreen (
             labelText = "How many categories to split this into?",
             textInput = budgetViewModel.categories,
             onValueChange = { budgetViewModel.categories = it },
-            modifier = modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 16.dp)
         )
 
         GoToMainScreenButton(
             onClick = onNextButtonClicked, // Call the navigation event handler,Sprint 2, Jose
-            modifier = modifier
+            modifier = Modifier
         )
 
     }
@@ -60,3 +61,4 @@ fun GoToMainScreenButton(
         Text("Submit!")
     }
 }
+

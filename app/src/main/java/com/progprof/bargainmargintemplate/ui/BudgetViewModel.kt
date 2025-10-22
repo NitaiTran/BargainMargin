@@ -11,8 +11,8 @@ class BudgetViewModel : ViewModel() {
 
     var totalBudget by mutableStateOf("") // Text the user types into the TextField
     var monthlyRemainingBudget by mutableDoubleStateOf(0.0)
+    var totalRemainingBudget by mutableDoubleStateOf(0.0)
     var categories by mutableStateOf("") //User states number of categories to split into
-
     val weeklyBudget :  Double
         get() = if (monthlyRemainingBudget > 0) monthlyRemainingBudget / 4.0 else 0.0
     var myNumberOfCategories by mutableIntStateOf(0) //User states number of categories to split into
@@ -21,12 +21,23 @@ class BudgetViewModel : ViewModel() {
         //private set
 
 
-    fun setInitialBudget() {
+    fun setInitialRemainingBudget() {
         monthlyRemainingBudget = totalBudget.toDoubleOrNull() ?: 0.0 //converts totalBudget input to double for monthBudget
+    }
+    fun setInitialTotalBudget() {
+        totalRemainingBudget = totalBudget.toDoubleOrNull() ?: 0.0 //converts totalBudget input to double for monthBudget
+    }
+
+    fun changeBudgetLimit()
+    {
+        if(monthlyRemainingBudget > totalRemainingBudget)
+        {
+            monthlyRemainingBudget = totalRemainingBudget
+        }
     }
 
     fun setCategories() {
-        myNumberOfCategories = categories.toIntOrNull() ?: 0 //converts categories input to int for myNumberOfCategories
+        myNumberOfCategories = categories.toIntOrNull() ?: 1 //converts categories input to int for myNumberOfCategories
     }
 
     fun calculateWeeklyBudget()
