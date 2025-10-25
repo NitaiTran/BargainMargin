@@ -7,6 +7,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 
+
+data class Expense(
+    val amountOfExpense : Double,
+    val descriptionOfExpense : String = "",
+    val categoryOfExpense : String = ""
+)
 class BudgetViewModel : ViewModel() {
 
     var totalBudget by mutableStateOf("") // Text the user types into the TextField
@@ -20,6 +26,7 @@ class BudgetViewModel : ViewModel() {
     var weeklyRemainingBudget = 0.0
         //private set
 
+    var expenses by mutableStateOf(listOf<Expense>())
 
     fun setInitialBudget() {
         monthlyRemainingBudget = totalBudget.toDoubleOrNull() ?: 0.0 //converts totalBudget input to double for monthBudget
@@ -33,4 +40,18 @@ class BudgetViewModel : ViewModel() {
     {
 
     }
+
+    fun addExpense(amount: Double, description: String = "", category: String = "") {
+        if (amount <= 0) return // simple validation
+
+        val newExpense = Expense(amount, description, category)
+        expenses = expenses + newExpense // add to the list
+        monthlyRemainingBudget -= amount // update remaining budget
+    }
+    fun removeExpense(expense: Expense) {
+        expenses = expenses - expense
+        monthlyRemainingBudget += expense.amountOfExpense
+    }
+
+
 }
