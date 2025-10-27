@@ -16,6 +16,8 @@ import androidx.navigation.NavController
 @Composable // Define the HomeScreen composable function
 fun HomeScreen(navController: NavController, budgetViewModel: BudgetViewModel) { // Pass the NavController and BudgetViewModel
     val monthlyBudget = budgetViewModel.monthlyRemainingBudget //get monthly budget from viewmodel
+    val currentWeekRemainingBudget = budgetViewModel.getCurrentWeekRemainingBudget()
+    val currentWeekTotalBudget = budgetViewModel.getCurrentWeekTotalBudget()
     val totalBudget = budgetViewModel.totalRemainingBudget
 
     Column(
@@ -32,14 +34,28 @@ fun HomeScreen(navController: NavController, budgetViewModel: BudgetViewModel) {
             text = "$%.2f".format(monthlyBudget) + "/%.2f".format(totalBudget), // Format the budget as a currency string
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 24.dp) // Add bottom padding
+            modifier = Modifier.padding(bottom = 10.dp) // Add bottom padding
         )
 
         LinearProgressIndicator(
             progress = { (monthlyBudget / totalBudget).toFloat() },
-            //modifier = Modifier.fillMaxWidth(),
-            modifier = Modifier.height(16.dp).fillMaxWidth(),
+            modifier = Modifier.height(26.dp).fillMaxWidth().padding(bottom = 10.dp),
             color = MaterialTheme.colorScheme.secondary
+        ){}
+
+        Text(text = "Week ${budgetViewModel.getCurrentWeek()} Budget Remaining: ", style = MaterialTheme.typography.titleMedium) //Budget Title:
+        Text( //Display monthly budget
+
+            text = "$%.2f".format(currentWeekRemainingBudget) + "/%.2f".format(currentWeekTotalBudget), // Format the budget as a currency string
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 10.dp) // Add bottom padding
+        )
+
+        LinearProgressIndicator(
+            progress = { (currentWeekRemainingBudget / currentWeekTotalBudget).toFloat() },
+            modifier = Modifier.height(26.dp).fillMaxWidth().padding(bottom = 10.dp),
+            color = MaterialTheme.colorScheme.primary
         ){}
 
         Button(onClick = { navController.navigate(ScreenController.Screen.MainBudgetEntry.name) }) {

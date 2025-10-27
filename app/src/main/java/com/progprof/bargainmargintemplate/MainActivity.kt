@@ -73,9 +73,7 @@ fun BargainMarginApp() {
                budgetViewModel = budgetViewModel,
                onNextButtonClicked = {
                    // 1. Set the budget in the ViewModel
-                   //budgetViewModel.setInitialRemainingBudget()
-                   //budgetViewModel.setInitialTotalBudget()
-                   budgetViewModel.setCategories()
+                   budgetViewModel.settingUpVariables()
                    // 2. Navigate to the next screen
                    navController.navigate(ScreenController.Screen.Home.name)
                }

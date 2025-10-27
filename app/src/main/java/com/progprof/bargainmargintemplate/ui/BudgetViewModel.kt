@@ -34,6 +34,8 @@ class BudgetViewModel : ViewModel() {
 
     var week4RemainingBudget = 0.0
     var week4TotalBudget = 0.0
+
+    var myCurrentWeek = 1
     fun setInitialRemainingBudget() {
         monthlyRemainingBudget = totalBudget.toDoubleOrNull() ?: 0.0 //converts totalBudget input to double for monthBudget
     }
@@ -44,13 +46,10 @@ class BudgetViewModel : ViewModel() {
     fun setWeeklyInitialBudgets()
     {
 
-        week1RemainingBudget = totalRemainingBudget / 4.0
-
-        week2RemainingBudget = totalRemainingBudget / 4.0
-
-        week3RemainingBudget = totalRemainingBudget / 4.0
-
-        week4RemainingBudget = totalRemainingBudget / 4.0
+        week1RemainingBudget = monthlyRemainingBudget / 4.0
+        week2RemainingBudget = monthlyRemainingBudget / 4.0
+        week3RemainingBudget = monthlyRemainingBudget / 4.0
+        week4RemainingBudget = monthlyRemainingBudget / 4.0
     }
 
     fun setWeeklyTotalBudgets()
@@ -68,22 +67,89 @@ class BudgetViewModel : ViewModel() {
             setInitialRemainingBudget()
             setWeeklyInitialBudgets()
         }
+
         setInitialTotalBudget()
         setWeeklyTotalBudgets()
 
         if(monthlyRemainingBudget > totalRemainingBudget)
         {
             monthlyRemainingBudget = totalRemainingBudget
+            setWeeklyInitialBudgets()
         }
     }
 
-    fun setCategories() {
+    fun settingUpVariables() {
         myNumberOfCategories = categories.toIntOrNull() ?: 1 //converts categories input to int for myNumberOfCategories
     }
 
-    fun calculateWeeklyBudget()
+    fun changeCurrentWeek(weekNum: Int)
     {
-        //TODO
+        myCurrentWeek = weekNum
+    }
+    fun getCurrentWeek(): Int
+    {
+        return myCurrentWeek
+    }
+    fun getCurrentWeekRemainingBudget(): Double
+    {
+        when (myCurrentWeek)
+        {
+            1 -> {
+                return week1RemainingBudget
+            }
+            2 -> {
+                return week2RemainingBudget
+            }
+            3 -> {
+                return week3RemainingBudget
+            }
+            4 -> {
+                return week4RemainingBudget
+            } else -> {
+                return week1RemainingBudget
+            }
+        }
+    }
+
+    fun getCurrentWeekTotalBudget(): Double
+    {
+        when (myCurrentWeek)
+        {
+            1 -> {
+                return week1TotalBudget
+            }
+            2 -> {
+                return week2TotalBudget
+            }
+            3 -> {
+                return week3TotalBudget
+            }
+            4 -> {
+                return week4TotalBudget
+            } else -> {
+            return week4TotalBudget
+        }
+        }
+    }
+
+    fun calculateWeeklyBudget(amount: Double)
+    {
+
+        when (myCurrentWeek)
+        {
+            1 -> {
+                week1RemainingBudget -= amount
+            }
+            2 -> {
+                week2RemainingBudget -= amount
+            }
+            3 -> {
+                week3RemainingBudget -= amount
+            }
+            4 -> {
+                week4RemainingBudget -= amount
+            }
+        }
     }
 
     fun addExpense(amount: Double, description: String = "", category: String = "", week: Int) {
@@ -96,6 +162,11 @@ class BudgetViewModel : ViewModel() {
     fun removeExpense(expense: Expense) {
         expenses = expenses - expense
         monthlyRemainingBudget += expense.amountOfExpense
+        calculateWeeklyBudget(-(expense.amountOfExpense))
+    }
+
+    fun updateWeekNum(expense: Expense) {
+
     }
 
 

@@ -44,12 +44,29 @@ fun ExpensesScreen(
         Text("Total Budget: $${"%.2f".format(budgetViewModel.totalRemainingBudget)}")
         Text(
             text = "Remaining Budget: $${"%.2f".format(remainingBudget)}",
-            color = if (remainingBudget < 0) Color.Red else Color.Unspecified
+            color = if (remainingBudget < 0) Color.Red else Color.Unspecified,
+
         )
 
         if (remainingBudget < 0) {
             Text(
-                text = "You've exceeded your budget!",
+                text = "You've exceeded your monthly budget!",
+                color = Color.Red,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(bottom = 20.dp).padding(top = 4.dp)
+
+            )
+        }
+
+        Text("Week ${budgetViewModel.getCurrentWeek()} Budget: $${"%.2f".format(budgetViewModel.getCurrentWeekTotalBudget())}")
+        Text(
+            text = "Week ${budgetViewModel.getCurrentWeek()} Remaining Budget: $${"%.2f".format(budgetViewModel.getCurrentWeekRemainingBudget())}",
+            color = if (budgetViewModel.getCurrentWeekRemainingBudget() < 0) Color.Red else Color.Unspecified
+        )
+
+        if (budgetViewModel.getCurrentWeekRemainingBudget() < 0) {
+            Text(
+                text = "You've exceeded your weekly budget!",
                 color = Color.Red,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(top = 4.dp)
@@ -128,7 +145,9 @@ fun ExpensesScreen(
                     }
 
                     else -> {
+                        budgetViewModel.changeCurrentWeek(week)
                         budgetViewModel.addExpense(amount, descriptionInput, categoryInput, week)
+                        budgetViewModel.calculateWeeklyBudget(amount)
                         errorMessage = null
                         expenseInput = ""
                         descriptionInput = ""
@@ -173,7 +192,7 @@ fun ExpensesScreen(
                             }
 
 
-                            Text("Week: ".format(expense.weekOfExpense),
+                            Text("Week: ${expense.weekOfExpense}",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color.Gray
                             )
@@ -181,12 +200,14 @@ fun ExpensesScreen(
 
                         }
                         Column(horizontalAlignment = androidx.compose.ui.Alignment.End) {
+
                             Text(
                                 text = "-$${"%.2f".format(expense.amountOfExpense)}",
                                 color = Color.Red
                             )
                             TextButton(
-                                onClick = { budgetViewModel.removeExpense(expense) },
+                                onClick = {
+                                    budgetViewModel.removeExpense(expense) },
                                 contentPadding = PaddingValues(0.dp)
                             ) {
                                 Text("Remove", color = Color.Gray)
