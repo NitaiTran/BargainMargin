@@ -21,6 +21,7 @@ fun ExpensesScreen(
     var expenseInput by remember { mutableStateOf("") }
     var descriptionInput by remember { mutableStateOf("") }
     var categoryInput by remember { mutableStateOf("") }
+    var weekInput by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     val remainingBudget = budgetViewModel.monthlyRemainingBudget
@@ -40,7 +41,7 @@ fun ExpensesScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Budget info
-        Text("Total Budget: ${budgetViewModel.totalBudget}")
+        Text("Total Budget: $${"%.2f".format(budgetViewModel.totalRemainingBudget)}")
         Text(
             text = "Remaining Budget: $${"%.2f".format(remainingBudget)}",
             color = if (remainingBudget < 0) Color.Red else Color.Unspecified
@@ -87,6 +88,16 @@ fun ExpensesScreen(
         )
 
         Spacer(modifier = Modifier.height(8.dp))
+        // Week input
+        TextField(
+            value = weekInput,
+            onValueChange = { weekInput = it },
+            label = { Text("Week #") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Error message
         if (errorMessage != null) {
@@ -102,6 +113,7 @@ fun ExpensesScreen(
         Button(
             onClick = {
                 val amount = expenseInput.toDoubleOrNull()
+                val week = weekInput.toIntOrNull()
 
                 when {
                     amount == null || amount <= 0 -> {
@@ -110,12 +122,18 @@ fun ExpensesScreen(
                     descriptionInput.isBlank() -> {
                         errorMessage = "Description cannot be empty."
                     }
+
+                    week == null || week < 1 || week > 4 -> {
+                        errorMessage = "Must enter a valid week number."
+                    }
+
                     else -> {
-                        budgetViewModel.addExpense(amount, descriptionInput, categoryInput)
+                        budgetViewModel.addExpense(amount, descriptionInput, categoryInput, week)
                         errorMessage = null
                         expenseInput = ""
                         descriptionInput = ""
                         categoryInput = ""
+                        weekInput = ""
                     }
                 }
             },
@@ -153,6 +171,14 @@ fun ExpensesScreen(
                                     color = Color.Gray
                                 )
                             }
+
+
+                            Text("Week: ".format(expense.weekOfExpense),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.Gray
+                            )
+
+
                         }
                         Column(horizontalAlignment = androidx.compose.ui.Alignment.End) {
                             Text(

@@ -11,7 +11,8 @@ import androidx.lifecycle.ViewModel
 data class Expense(
     val amountOfExpense : Double,
     val descriptionOfExpense : String = "",
-    val categoryOfExpense : String = ""
+    val categoryOfExpense : String = "",
+    val weekOfExpense : Int
 )
 class BudgetViewModel : ViewModel() {
 
@@ -19,15 +20,20 @@ class BudgetViewModel : ViewModel() {
     var monthlyRemainingBudget by mutableDoubleStateOf(0.0)
     var totalRemainingBudget by mutableDoubleStateOf(0.0)
     var categories by mutableStateOf("") //User states number of categories to split into
-    val weeklyBudget :  Double
-        get() = if (monthlyRemainingBudget > 0) monthlyRemainingBudget / 4.0 else 0.0
     var myNumberOfCategories by mutableIntStateOf(0) //User states number of categories to split into
-
-    var weeklyRemainingBudget = 0.0
-        //private set
-
     var expenses by mutableStateOf(listOf<Expense>())
 
+    var week1RemainingBudget = 0.0
+    var week1TotalBudget = 0.0
+
+    var week2RemainingBudget = 0.0
+    var week2TotalBudget = 0.0
+
+    var week3RemainingBudget = 0.0
+    var week3TotalBudget = 0.0
+
+    var week4RemainingBudget = 0.0
+    var week4TotalBudget = 0.0
     fun setInitialRemainingBudget() {
         monthlyRemainingBudget = totalBudget.toDoubleOrNull() ?: 0.0 //converts totalBudget input to double for monthBudget
     }
@@ -35,14 +41,35 @@ class BudgetViewModel : ViewModel() {
         totalRemainingBudget = totalBudget.toDoubleOrNull() ?: 0.0 //converts totalBudget input to double for monthBudget
     }
 
+    fun setWeeklyInitialBudgets()
+    {
+
+        week1RemainingBudget = totalRemainingBudget / 4.0
+
+        week2RemainingBudget = totalRemainingBudget / 4.0
+
+        week3RemainingBudget = totalRemainingBudget / 4.0
+
+        week4RemainingBudget = totalRemainingBudget / 4.0
+    }
+
+    fun setWeeklyTotalBudgets()
+    {
+        week1TotalBudget = totalRemainingBudget / 4.0
+        week2TotalBudget = totalRemainingBudget / 4.0
+        week3TotalBudget = totalRemainingBudget / 4.0
+        week4TotalBudget = totalRemainingBudget / 4.0
+    }
+
     fun changeBudgetLimit()
     {
         if(monthlyRemainingBudget <= 0.0)
         {
             setInitialRemainingBudget()
+            setWeeklyInitialBudgets()
         }
         setInitialTotalBudget()
-
+        setWeeklyTotalBudgets()
 
         if(monthlyRemainingBudget > totalRemainingBudget)
         {
@@ -56,13 +83,13 @@ class BudgetViewModel : ViewModel() {
 
     fun calculateWeeklyBudget()
     {
-
+        //TODO
     }
 
-    fun addExpense(amount: Double, description: String = "", category: String = "") {
+    fun addExpense(amount: Double, description: String = "", category: String = "", week: Int) {
         if (amount <= 0) return // simple validation
 
-        val newExpense = Expense(amount, description, category)
+        val newExpense = Expense(amount, description, category, week)
         expenses = expenses + newExpense // add to the list
         monthlyRemainingBudget -= amount // update remaining budget
     }
