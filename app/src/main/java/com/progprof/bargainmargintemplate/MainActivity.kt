@@ -74,6 +74,7 @@ fun BargainMarginApp() {
                onNextButtonClicked = {
                    // 1. Set the budget in the ViewModel
                    budgetViewModel.setInitialBudget()
+                   budgetViewModel.setCategories()
                    // 2. Navigate to the next screen
                    navController.navigate(ScreenController.Screen.Home.name)
                }
@@ -88,7 +89,7 @@ fun BargainMarginApp() {
 
         // Define Analytics screen
         composable(route = ScreenController.Screen.Analytics.name) {
-            AnalyticsScreen(navController = navController)
+            AnalyticsScreen(navController = navController, budgetViewModel)
         }
 
         // Define Categories screen
