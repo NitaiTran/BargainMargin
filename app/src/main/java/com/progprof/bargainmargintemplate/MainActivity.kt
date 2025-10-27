@@ -83,9 +83,13 @@ fun BargainMarginApp() {
 
 
         // Define Expense Tracking screen
-        composable(route = ScreenController.Screen.ExpenseTracking.name) {
-            ExpenseTrackingScreen(navController = navController)
+        composable("expenseTracker") {
+            ExpensesScreen(
+                budgetViewModel = budgetViewModel
+            )
         }
+
+
 
         // Define Analytics screen
         composable(route = ScreenController.Screen.Analytics.name) {

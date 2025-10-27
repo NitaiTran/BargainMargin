@@ -6,7 +6,8 @@ class ScreenController { // Defines the routes for our app's navigation
         Home,
         MainBudgetEntry,
         SplitMainBudget,
-        ExpenseTracking,
+
+        ExpenseTracker,
         Analytics,
         Categories,
         Settings
