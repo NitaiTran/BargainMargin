@@ -45,7 +45,7 @@ fun HomeScreen(navController: NavController, budgetViewModel: BudgetViewModel) {
         Button(onClick = { navController.navigate(ScreenController.Screen.MainBudgetEntry.name) }) {
             Text(if(monthlyBudget > 0) "Edit Monthly Budget" else "Set Up Budget") // Your old MainBudgetEntry screen
         }
-        Button(onClick = { navController.navigate(ScreenController.Screen.ExpenseTracking.name) }) {
+        Button(onClick = { navController.navigate(ScreenController.Screen.ExpenseTracker.name) }) {
             Text("Expense Tracking")
         }
         Button(onClick = { navController.navigate(ScreenController.Screen.Categories.name) }) {
