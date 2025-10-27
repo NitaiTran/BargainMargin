@@ -57,10 +57,10 @@ fun BargainMarginApp() {
         //Define the Main Budget Screen
         composable(route = ScreenController.Screen.MainBudgetEntry.name){
             BudgetScreen(
-                initialScreenViewModel = budgetViewModel,
+                budgetViewModel = budgetViewModel,
                 onNextButtonClicked = {
                     // 1. Set the budget in the ViewModel
-                    budgetViewModel.setInitialBudget()
+                    budgetViewModel.changeBudgetLimit()
                     // 2. Navigate to Home screen
                     navController.navigate(ScreenController.Screen.SplitMainBudget.name)
                 }
@@ -73,7 +73,8 @@ fun BargainMarginApp() {
                budgetViewModel = budgetViewModel,
                onNextButtonClicked = {
                    // 1. Set the budget in the ViewModel
-                   budgetViewModel.setInitialBudget()
+                   //budgetViewModel.setInitialRemainingBudget()
+                   //budgetViewModel.setInitialTotalBudget()
                    budgetViewModel.setCategories()
                    // 2. Navigate to the next screen
                    navController.navigate(ScreenController.Screen.Home.name)
@@ -85,7 +86,8 @@ fun BargainMarginApp() {
         // Define Expense Tracking screen
         composable("expenseTracker") {
             ExpensesScreen(
-                budgetViewModel = budgetViewModel
+                budgetViewModel = budgetViewModel,
+                navController = navController
             )
         }
 

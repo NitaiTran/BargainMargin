@@ -37,6 +37,13 @@ class BudgetViewModel : ViewModel() {
 
     fun changeBudgetLimit()
     {
+        if(monthlyRemainingBudget <= 0.0)
+        {
+            setInitialRemainingBudget()
+        }
+        setInitialTotalBudget()
+
+
         if(monthlyRemainingBudget > totalRemainingBudget)
         {
             monthlyRemainingBudget = totalRemainingBudget
