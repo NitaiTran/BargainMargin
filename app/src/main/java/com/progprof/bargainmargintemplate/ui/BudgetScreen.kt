@@ -17,25 +17,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.semantics.Role
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 
 @Composable
 fun BudgetScreen(
-    onNextButtonClicked: () -> Unit, // Add a parameter to handle the navigation event,Sprint 2, Jose
-    modifier: Modifier = Modifier,
-    initialScreenViewModel: BudgetViewModel = viewModel()
+    budgetViewModel: BudgetViewModel = viewModel(),
+    onNextButtonClicked: () -> Unit,
+
 ) {
     Column (
-        modifier = modifier.padding(10.dp)
+        modifier = Modifier.padding(10.dp)
     ) {
-        AppTitle(modifier)
-        LogInitialBudget(
-            totalBudget = initialScreenViewModel.totalBudget,
-            onValueChange = { initialScreenViewModel.totalBudget = it },
-            modifier = modifier
+        AppTitle(Modifier)
+        LogInitialRemainingBudget(
+            totalBudget = budgetViewModel.totalBudget,
+            onValueChange = { budgetViewModel.totalBudget = it },
+            modifier = Modifier
         )
         CalculateButton(
             onClick = onNextButtonClicked, // Call the navigation event handler,Sprint 2, Jose
-            modifier = modifier
+            modifier = Modifier
         )
     }
 }
@@ -50,7 +51,7 @@ fun AppTitle(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun LogInitialBudget(
+fun LogInitialRemainingBudget(
     totalBudget: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -62,6 +63,8 @@ fun LogInitialBudget(
         modifier = modifier.padding(bottom = 16.dp).fillMaxWidth()
     )
 }
+
+
 @Composable
 fun CalculateButton(
     onClick: () -> Unit,
