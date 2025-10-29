@@ -60,11 +60,6 @@ fun BargainMarginApp() {
                 budgetViewModel = budgetViewModel,
                 onNextButtonClicked = {
                     // 1. Set the budget in the ViewModel
-                    if(budgetViewModel.monthlyRemainingBudget <= 0)
-                    {
-                        budgetViewModel.setInitialRemainingBudget()
-                    }
-                    budgetViewModel.setInitialTotalBudget()
                     budgetViewModel.changeBudgetLimit()
                     // 2. Navigate to Home screen
                     navController.navigate(ScreenController.Screen.SplitMainBudget.name)
@@ -77,8 +72,8 @@ fun BargainMarginApp() {
            SplitBudgetScreen(
                budgetViewModel = budgetViewModel,
                onNextButtonClicked = {
-                   // 1. Set the number of categories in the ViewModel
-                   budgetViewModel.setCategories()
+                   // 1. Set the budget in the ViewModel
+                   budgetViewModel.settingUpVariables()
                    // 2. Navigate to the next screen
                    navController.navigate(ScreenController.Screen.Home.name)
                }
@@ -87,17 +82,25 @@ fun BargainMarginApp() {
 
 
         // Define Expense Tracking screen
-        composable(route = ScreenController.Screen.ExpenseTracking.name) {
-            ExpenseTrackingScreen(navController = navController)
+        composable("expenseTracker") {
+            ExpensesScreen(
+                budgetViewModel = budgetViewModel,
+                navController = navController
+            )
         }
+
+
+
         // Define Analytics screen
         composable(route = ScreenController.Screen.Analytics.name) {
-            AnalyticsScreen(navController = navController)
+            AnalyticsScreen(navController = navController, budgetViewModel)
         }
+
         // Define Categories screen
         composable(route = ScreenController.Screen.Categories.name) {
             CategoriesScreen(navController = navController)
         }
+
         // Define Settings screen
         composable(route = ScreenController.Screen.Settings.name) {
             SettingsScreen(navController = navController)
