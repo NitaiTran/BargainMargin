@@ -3,49 +3,60 @@ package com.progprof.bargainmargintemplate.ui
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun SplitBudgetScreen (
-    onNextButtonClicked: () -> Unit, // Add a parameter to handle the navigation event,Sprint 2, Jose
-    modifier: Modifier = Modifier,
-    budgetViewModel: BudgetViewModel = viewModel()
+    // The screen should not create its own ViewModel. It should receive the values it needs.
+    // This makes your UI more predictable and easier to test.
+    categoriesString: String,
+    monthlyRemainingBudget: Double,
+    totalRemainingBudget: Double,
+    onCategoriesChange: (String) -> Unit,
+    onNextButtonClicked: () -> Unit,
 ) {
-    Column ( modifier = modifier.padding(16.dp) ){
+    Column ( modifier = Modifier.padding(16.dp) ){
         Text(
             text = "Split your budget",
             fontSize = 24.sp,
-            modifier = modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        // Display the total budget entered on the previous screen
+        // Display the budget values passed into the screen
         Text(
-            text = "Total Budget: $${budgetViewModel.monthlyRemainingBudget}",
+            // Use String.format for clean currency display
+            text = "Total Budget: $${String.format("%.2f", monthlyRemainingBudget)}/${String.format("%.2f", totalRemainingBudget)}",
             fontSize = 18.sp,
-            modifier = modifier.padding(bottom = 24.dp)
+            modifier = Modifier.padding(bottom = 24.dp)
         )
 
-        // Use the existing NumberField to ask for the number of categories
-        NumberField(
-            labelText = "How many categories to split this into?",
-            textInput = budgetViewModel.categories,
-            onValueChange = { budgetViewModel.categories = it },
-            modifier = modifier.padding(bottom = 16.dp)
+        // Using a standard Material 3 OutlinedTextField instead of the undefined NumberField
+        OutlinedTextField(
+            value = categoriesString,
+            onValueChange = onCategoriesChange,
+            label = { Text("How many categories to split this into?") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
         )
 
         GoToMainScreenButton(
-            onClick = onNextButtonClicked, // Call the navigation event handler,Sprint 2, Jose
-            modifier = modifier
+            onClick = onNextButtonClicked,
+            modifier = Modifier
         )
-
     }
-
 }
 
 @Composable
