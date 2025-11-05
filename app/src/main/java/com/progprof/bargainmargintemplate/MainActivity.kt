@@ -1,6 +1,7 @@
 package com.progprof.bargainmargintemplate
 
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -14,6 +15,9 @@ import androidx.navigation.compose.NavHost //if red, do a gradle sync
 import androidx.navigation.compose.composable
 import com.progprof.bargainmargintemplate.ui.* //imports everything from the ui package
 import com.progprof.bargainmargintemplate.ui.theme.AppTheme
+
+
+// ... inside your Activity or Fragment
 
 
 
@@ -33,4 +37,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+
 }

@@ -39,9 +39,6 @@ fun AnalyticsScreen(navController: NavController, budgetViewModel: BudgetViewMod
 
         DrawAllPercentageBars(numberOfCategories = numCategories)
 
-        Button(onClick = { navController.popBackStack() }) {
-            Text(text = "Back to Home")
-        }
     }
 }
 
