@@ -1,6 +1,7 @@
 package com.progprof.bargainmargintemplate
 
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,6 +17,9 @@ import com.progprof.bargainmargintemplate.ui.* //imports everything from the ui 
 import com.progprof.bargainmargintemplate.ui.theme.AppTheme
 
 
+// ... inside your Activity or Fragment
+
+
 
 
 class MainActivity : ComponentActivity() {
@@ -28,84 +32,11 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background)
                 {
                     //Entry point for the App's navigation
-                    BargainMarginApp()
+                    AppScaffold()
                 }
             }
         }
     }
-}
 
-@Composable
-fun BargainMarginApp() {
-    // Create the NavController, which manages the back stack and navigation
-    val navController = androidx.navigation.compose.rememberNavController()
-    // Share one ViewModel instance across both screens, so variables are shared
-    val budgetViewModel: BudgetViewModel = viewModel()
-
-    NavHost(
-        navController = navController, // The NavController
-        startDestination = ScreenController.Screen.MainBudgetEntry.name // The first screen to show
-    ){
-        //Define Home screen
-        composable(route = ScreenController.Screen.Home.name){
-            HomeScreen(
-                navController = navController,
-                budgetViewModel = budgetViewModel
-            )
-        }
-
-        //Define the Main Budget Screen
-        composable(route = ScreenController.Screen.MainBudgetEntry.name){
-            BudgetScreen(
-                budgetViewModel = budgetViewModel,
-                onNextButtonClicked = {
-                    // 1. Set the budget in the ViewModel
-                    budgetViewModel.changeBudgetLimit()
-                    // 2. Navigate to Home screen
-                    navController.navigate(ScreenController.Screen.SplitMainBudget.name)
-                }
-            )
-        }
-
-        // Define the Split Main Budget Screen
-        composable(route = ScreenController.Screen.SplitMainBudget.name) {
-           SplitBudgetScreen(
-               budgetViewModel = budgetViewModel,
-               onNextButtonClicked = {
-                   // 1. Set the budget in the ViewModel
-                   budgetViewModel.settingUpVariables()
-                   // 2. Navigate to the next screen
-                   navController.navigate(ScreenController.Screen.Home.name)
-               }
-           )
-        }
-
-
-        // Define Expense Tracking screen
-        composable("expenseTracker") {
-            ExpensesScreen(
-                budgetViewModel = budgetViewModel,
-                navController = navController
-            )
-        }
-
-
-
-        // Define Analytics screen
-        composable(route = ScreenController.Screen.Analytics.name) {
-            AnalyticsScreen(navController = navController, budgetViewModel)
-        }
-
-        // Define Categories screen
-        composable(route = ScreenController.Screen.Categories.name) {
-            CategoriesScreen(navController = navController)
-        }
-
-        // Define Settings screen
-        composable(route = ScreenController.Screen.Settings.name) {
-            SettingsScreen(navController = navController)
-        }
-    }
 
 }
-
