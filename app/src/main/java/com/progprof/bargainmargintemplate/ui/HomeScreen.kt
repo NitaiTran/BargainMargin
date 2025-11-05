@@ -18,11 +18,15 @@ import androidx.compose.runtime.collectAsState
 @Composable
 fun HomeScreen(
     monthlyBudget: Double,
-    totalBudget: Double
+    totalBudget: Double,
+    currentWeek: Int,
+    weeklyBudget: Double,
+    weeklyTotalBudget: Double
 ) {
     // Prevent division by zero if the total budget isn't set yet.
     val monthlyProgress = if (totalBudget > 0) (monthlyBudget / totalBudget).toFloat() else 0f
-
+    // Prevent division by zero if the total budget isn't set yet.
+    val weeklyProgress = if (weeklyTotalBudget > 0) (weeklyBudget / weeklyTotalBudget).toFloat() else 0f
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -49,5 +53,22 @@ fun HomeScreen(
                 .fillMaxWidth()
                 .padding(bottom = 10.dp)
         )
+
+        Text(text = "Week $currentWeek Budget Remaining: ", style = MaterialTheme.typography.titleMedium) //Budget Title:
+        Text( //Display monthly budget
+
+            text = "$%.2f".format(weeklyBudget) + "/%.2f".format(weeklyTotalBudget), // Format the budget as a currency string
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 10.dp) // Add bottom padding
+        )
+
+        LinearProgressIndicator(
+            progress = {weeklyProgress},
+            modifier = Modifier.height(26.dp).fillMaxWidth().padding(bottom = 10.dp),
+            color = MaterialTheme.colorScheme.primary
+        ){}
     }
+
+
 }

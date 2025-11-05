@@ -26,10 +26,11 @@ fun ExpensesScreen(
     val numberOfCategories by budgetViewModel.myNumberOfCategories.collectAsState()
 
     // 2. Derive weekly budget logic here in the UI, as it's a display concern.
-    val weeklyBudget = if (numberOfCategories > 0) totalBudget / 4 else 0.0
+
+    val weeklyBudget = budgetViewModel.getCurrentWeekTotalBudget()
     val expensesThisWeek = allExpenses.filter { it.weekOfExpense == 1 } // Example for week 1
     val weeklySpent = expensesThisWeek.sumOf { it.amountOfExpense }
-    val weeklyRemaining = weeklyBudget - weeklySpent
+    val weeklyRemaining = budgetViewModel.getCurrentWeekRemainingBudget()
 
     // Local state for the text input fields
     var expenseInput by remember { mutableStateOf("") }
@@ -109,7 +110,10 @@ fun ExpensesScreen(
                         descriptionInput.isBlank() -> errorMessage = "Description cannot be empty."
                         week == null || week !in 1..4 -> errorMessage = "Please enter a valid week (1-4)."
                         else -> {
+                            budgetViewModel.changeCurrentWeek(week)
                             budgetViewModel.addExpense(amount, descriptionInput, categoryInput, week)
+
+                            //budgetViewModel.calculateWeeklyBudget(amount)
                             // Clear inputs
                             errorMessage = null
                             expenseInput = ""
@@ -136,14 +140,7 @@ fun ExpensesScreen(
         }
 
         // --- Back Button at the bottom ---
-        Button(
-            onClick = { navController.popBackStack() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp)
-        ) {
-            Text("Back to Home")
-        }
+
     }
 }
 

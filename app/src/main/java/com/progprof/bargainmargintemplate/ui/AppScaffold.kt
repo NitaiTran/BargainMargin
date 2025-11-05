@@ -139,11 +139,17 @@ fun AppNavHost(
             // 1. Collect the state from the ViewModel
             val monthlyBudget by budgetViewModel.monthlyRemainingBudget.collectAsState()
             val totalBudget by budgetViewModel.totalRemainingBudget.collectAsState()
+            val currentWeek by budgetViewModel.myCurrentWeek.collectAsState()
+            val weeklyBudget = budgetViewModel.getCurrentWeekRemainingBudget()
+            val weeklyTotalBudget = budgetViewModel.getCurrentWeekTotalBudget()
 
             // 2. Pass the raw data to the clean HomeScreen. Note that NavController is no longer passed.
             HomeScreen(
                 monthlyBudget = monthlyBudget,
-                totalBudget = totalBudget
+                totalBudget = totalBudget,
+                currentWeek = currentWeek,
+                weeklyBudget = weeklyBudget,
+                weeklyTotalBudget = weeklyTotalBudget
             )
         }
         composable(ScreenController.Screen.MainBudgetEntry.name) {

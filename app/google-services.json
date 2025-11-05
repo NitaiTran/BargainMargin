@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "772113599977",
+    "project_id": "bargainmargin-7b11e",
+    "storage_bucket": "bargainmargin-7b11e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:772113599977:android:08317bc298e686617b4f78",
+        "android_client_info": {
+          "package_name": "com.progprof.bargainmargintemplate"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgrADN_DNpSajDZ4v08u2coK4cTjyl0GI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

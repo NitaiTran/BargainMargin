@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -41,6 +42,12 @@ android {
 }
 
 dependencies {
+    val room_version = "2.8.3"
+    implementation("androidx.room:room-runtime:$room_version")
+
+    // If this project uses any Kotlin source, use Kotlin Symbol Processing (KSP)
+    // See Add the KSP plugin to your project
+    ksp("androidx.room:room-compiler:$room_version")
     implementation("androidx.compose.material:material-icons-extended-android:1.6.8")
     implementation("androidx.navigation:navigation-compose:2.8.0-beta01") //added sprint 2, Jose
     implementation(libs.androidx.core.ktx)
