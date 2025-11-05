@@ -1,10 +1,13 @@
 package com.progprof.bargainmargintemplate.ui
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -12,33 +15,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.semantics.Role
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 
-// --- THIS IS THE FIX ---
-// The signature is now clean. It only asks for the data it needs and the functions to call.
 @Composable
 fun BudgetScreen(
-    budgetString: String,
-    onBudgetStringChange: (String) -> Unit,
-    onNextButtonClicked: () -> Unit
+    budgetViewModel: BudgetViewModel = viewModel(),
+    onNextButtonClicked: () -> Unit,
+
 ) {
-    Column(
-        modifier = Modifier.padding(16.dp)
+    Column (
+        modifier = Modifier.padding(10.dp)
     ) {
         AppTitle(Modifier)
-
-        // The LogInitialRemainingBudget composable is simple enough that we can just use
-        // the NumberField directly here.
-        NumberField(
-            labelText = "What is your initial budget?",
-            textInput = budgetString,
-            onValueChange = onBudgetStringChange, // Pass the correct event handler
+        LogInitialRemainingBudget(
+            totalBudget = budgetViewModel.totalBudget,
+            onValueChange = { budgetViewModel.totalBudget = it },
             modifier = Modifier
-                .padding(bottom = 16.dp)
-                .fillMaxWidth()
         )
-
         CalculateButton(
-            onClick = onNextButtonClicked, // This was already correct
+            onClick = onNextButtonClicked, // Call the navigation event handler,Sprint 2, Jose
             modifier = Modifier
         )
     }
@@ -54,6 +51,21 @@ fun AppTitle(modifier: Modifier = Modifier) {
 }
 
 @Composable
+fun LogInitialRemainingBudget(
+    totalBudget: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    NumberField(
+        labelText = "What is your initial budget?",
+        textInput = totalBudget,
+        onValueChange = { onValueChange(it) },
+        modifier = modifier.padding(bottom = 16.dp).fillMaxWidth()
+    )
+}
+
+
+@Composable
 fun CalculateButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -66,7 +78,6 @@ fun CalculateButton(
     }
 }
 
-// This is a helpful, reusable composable. Let's keep it.
 @Composable
 fun NumberField(
     labelText: String,
@@ -77,11 +88,55 @@ fun NumberField(
     TextField(
         value = textInput,
         onValueChange = onValueChange,
-        label = { Text(labelText) },
+        label = {Text(labelText)},
         singleLine = true,
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Number
         ),
         modifier = modifier
+
     )
 }
+
+@Composable
+fun RadioGroup(
+    labelText: String,
+    radioOptions: List<String>,
+    selectedOption: String,
+    onSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val isSelectedOption: (String) -> Boolean = { selectedOption == it }
+    Column {
+        Text(labelText)
+        radioOptions.forEach { option ->
+            Row (
+                modifier = modifier
+                    .selectable(
+                        selected = isSelectedOption(option),
+                        onClick = {onSelected(option)},
+                        role = Role.RadioButton
+                    )
+                    .padding(8.dp)
+            ) {
+                RadioButton(
+                    selected = isSelectedOption(option),
+                    onClick = null,
+                    modifier = modifier.padding(end = 8.dp)
+                )
+                Text(
+                    text = option,
+                    modifier = modifier.fillMaxWidth()
+                )
+            }
+
+        }
+    }
+}
+//@Preview(showBackground = true)
+//@Composable
+//fun GreetingPreview() {
+//    AppTheme {
+//        FirstBudgetScreen()
+//    }
+//}
