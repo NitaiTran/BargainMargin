@@ -15,14 +15,16 @@ import androidx.navigation.compose.NavHost //if red, do a gradle sync
 import androidx.navigation.compose.composable
 import com.progprof.bargainmargintemplate.ui.* //imports everything from the ui package
 import com.progprof.bargainmargintemplate.ui.theme.AppTheme
-
-
-// ... inside your Activity or Fragment
-
-
+import android.app.Application
+import androidx.room.Room
 
 
 class MainActivity : ComponentActivity() {
+
+    companion object {
+        lateinit var database: AppDatabase
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -35,6 +37,11 @@ class MainActivity : ComponentActivity() {
                     AppScaffold()
                 }
             }
+            database = Room.databaseBuilder(
+                applicationContext,
+                AppDatabase::class.java,
+                "budget_tracker_db"
+            ).build()
         }
     }
 

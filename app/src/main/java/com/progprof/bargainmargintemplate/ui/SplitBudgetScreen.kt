@@ -20,12 +20,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 fun SplitBudgetScreen (
     // The screen should not create its own ViewModel. It should receive the values it needs.
     // This makes your UI more predictable and easier to test.
+    budgetViewModel: BudgetViewModel,
     categoriesString: String,
-    monthlyRemainingBudget: Double,
-    totalRemainingBudget: Double,
     onCategoriesChange: (String) -> Unit,
     onNextButtonClicked: () -> Unit,
 ) {
+    val budgetState by budgetViewModel.budgetRepo.collectAsState()
+    val monthlyRemainingBudget = budgetState?.monthlyRemainingBudget
+    val totalRemainingBudget = budgetState?.totalRemainingBudget
     Column ( modifier = Modifier.padding(16.dp) ){
         Text(
             text = "Split your budget",

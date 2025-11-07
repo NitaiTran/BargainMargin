@@ -1,0 +1,32 @@
+package com.progprof.bargainmargintemplate.data.repository
+
+import com.progprof.bargainmargintemplate.data.local.AppDatabase
+import com.progprof.bargainmargintemplate.data.local.entities.BudgetEntity
+import com.progprof.bargainmargintemplate.data.local.entities.CategoryEntity
+import com.progprof.bargainmargintemplate.data.local.entities.ExpenseEntity
+import kotlinx.coroutines.flow.firstOrNull
+
+class BudgetRepository(private val db: AppDatabase) {
+
+    val allExpenses = db.expenseDao().getAllExpenses()
+    val allCategories = db.categoryDao().getAllCategories()
+    val budget = db.budgetDao().getBudget()
+
+    suspend fun initializeIfEmpty() {
+        val current = db.budgetDao().getBudget().firstOrNull()
+        if (current == null) {
+            db.budgetDao().upsertBudget(BudgetEntity()) // all zero by default
+        }
+    }
+
+    suspend fun updateBudget(newBudget: BudgetEntity) {
+        db.budgetDao().upsertBudget(newBudget)
+    }
+    suspend fun insertExpense(expense: ExpenseEntity) {
+        db.expenseDao().insertExpense(expense)
+    }
+    suspend fun addCategory(category: CategoryEntity)
+    {
+        db.categoryDao().insertCategory(category)
+    }
+}
