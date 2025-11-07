@@ -11,22 +11,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.collectAsState
 
 
 @Composable
 fun HomeScreen(
-    monthlyBudget: Double,
-    totalBudget: Double,
-    currentWeek: Int,
-    weeklyBudget: Double,
-    weeklyTotalBudget: Double
+    budgetViewModel: BudgetViewModel
 ) {
+    val budgetState by budgetViewModel.budgetRepo.collectAsState()
+    val monthlyBudget = budgetState?.monthlyRemainingBudget ?: 0.0
+    val totalBudget = budgetState?.totalBudget ?: 0.0
+    val currentWeek = budgetState?.myCurrentWeek ?: 1
+    val weeklyRemainingBudget = budgetViewModel.getCurrentWeekRemainingBudget()
+    val weeklyTotalBudget = budgetViewModel.getCurrentWeekTotalBudget()
     // Prevent division by zero if the total budget isn't set yet.
     val monthlyProgress = if (totalBudget > 0) (monthlyBudget / totalBudget).toFloat() else 0f
     // Prevent division by zero if the total budget isn't set yet.
-    val weeklyProgress = if (weeklyTotalBudget > 0) (weeklyBudget / weeklyTotalBudget).toFloat() else 0f
+    val weeklyProgress = if (weeklyTotalBudget > 0) (weeklyRemainingBudget / weeklyTotalBudget).toFloat() else 0f
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -55,9 +57,9 @@ fun HomeScreen(
         )
 
         Text(text = "Week $currentWeek Budget Remaining: ", style = MaterialTheme.typography.titleMedium) //Budget Title:
-        Text( //Display monthly budget
+        Text( //Display weekly budget
 
-            text = "$%.2f".format(weeklyBudget) + "/%.2f".format(weeklyTotalBudget), // Format the budget as a currency string
+            text = "$%.2f".format(weeklyRemainingBudget) + "/%.2f".format(weeklyTotalBudget), // Format the budget as a currency string
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 10.dp) // Add bottom padding

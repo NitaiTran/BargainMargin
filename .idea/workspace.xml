@@ -9,19 +9,17 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a60b997b-16cd-49de-a84e-689e7ce6c120" name="Changes" comment="Edited how the app navigates so you start with the budget screen and THEN going to home">
-      <change afterPath="$PROJECT_DIR$/app/google-services.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
+    <list default="true" id="a60b997b-16cd-49de-a84e-689e7ce6c120" name="Changes" comment="Re-added Week Budget functionality, and made it compatible with the new syntax since it was removed">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/app/build.gradle.kts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/MainActivity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/AnalyticsScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/AnalyticsScreen.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/AppScaffold.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/AppScaffold.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/BudgetScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/BudgetScreen.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/BudgetViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/BudgetViewModel.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/ExpensesScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/ExpensesScreen.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/HomeScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/HomeScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/ScreenController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/ScreenController.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/libs.versions.toml" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/libs.versions.toml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,6 +39,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Kotlin Class" />
+        <option value="Kotlin File" />
       </list>
     </option>
   </component>
@@ -53,10 +52,23 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;delgadodanny&quot;
-  }
+  &quot;history&quot;: [
+    {
+      &quot;state&quot;: &quot;OPEN&quot;
+    }
+  ],
+  &quot;lastFilter&quot;: {}
+}</component>
+  <component name="GitHubPullRequestState">{
+  &quot;prStates&quot;: [
+    {
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDOPwcsrs6xt3Gz&quot;,
+        &quot;number&quot;: 64
+      },
+      &quot;lastSeen&quot;: 1762368447522
+    }
+  ]
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
@@ -81,33 +93,37 @@
   &quot;associatedIndex&quot;: 3
 }</component>
   <component name="ProjectId" id="345Pr4IMYQAdtgqfeWJQk0RgfW5" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Android App.BargainMarginApp.executor&quot;: &quot;Run&quot;,
-    &quot;Android App.BargainMarginTemplate.executor&quot;: &quot;Run&quot;,
-    &quot;Android App.app.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Sprint3Nitai&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/nitai/AndroidStudioProjects/BargainMargin/app/src/main/java/com/progprof/bargainmargintemplate/ui&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.17&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.updates&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Android App.BargainMarginApp.executor": "Run",
+    "Android App.BargainMarginTemplate.executor": "Run",
+    "Android App.app.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "git-widget-placeholder": "Sprint3Nitai",
+    "last_opened_file_path": "C:/Users/nitai/AndroidStudioProjects/BargainMargin/app/src/main/java/com/progprof/bargainmargintemplate/data/local/dao",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.17",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "preferences.updates"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\nitai\AndroidStudioProjects\BargainMargin\app\src\main\java\com\progprof\bargainmargintemplate\data\local\dao" />
       <recent name="C:\Users\nitai\AndroidStudioProjects\BargainMargin\app\src\main\java\com\progprof\bargainmargintemplate\ui" />
       <recent name="C:\Users\nitai\AndroidStudioProjects\BargainMargin\app\src\main\res\values" />
       <recent name="C:\Users\nitai\AndroidStudioProjects\BargainMargin" />
@@ -295,7 +311,15 @@
       <option name="project" value="LOCAL" />
       <updated>1761149734057</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Re-added Week Budget functionality, and made it compatible with the new syntax since it was removed">
+      <option name="closed" value="true" />
+      <created>1762366996666</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1762366996666</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -325,19 +349,20 @@
     <MESSAGE value="Adding the .gitignore file to the gitHub" />
     <MESSAGE value="Refactored into jetpack format. Added extremely basic code" />
     <MESSAGE value="Edited how the app navigates so you start with the budget screen and THEN going to home" />
-    <option name="LAST_COMMIT_MESSAGE" value="Edited how the app navigates so you start with the budget screen and THEN going to home" />
+    <MESSAGE value="Re-added Week Budget functionality, and made it compatible with the new syntax since it was removed" />
+    <option name="LAST_COMMIT_MESSAGE" value="Re-added Week Budget functionality, and made it compatible with the new syntax since it was removed" />
   </component>
   <component name="play_dynamic_filters_status">
     <option name="appIdToCheckInfo">
       <map>
         <entry key="com.progprof.bargainmargintemplate">
           <value>
-            <CheckInfo lastCheckTimestamp="1760500683750" />
+            <CheckInfo lastCheckTimestamp="1762455631283" />
           </value>
         </entry>
         <entry key="com.progprof.bargainmargintemplate.test">
           <value>
-            <CheckInfo lastCheckTimestamp="1760500683750" />
+            <CheckInfo lastCheckTimestamp="1762455631282" />
           </value>
         </entry>
       </map>
