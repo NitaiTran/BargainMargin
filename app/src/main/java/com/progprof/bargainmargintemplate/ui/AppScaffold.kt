@@ -251,11 +251,20 @@ fun AppNavHost(
         }
         composable(ScreenController.Screen.Analytics.name) {
             // NOTE: AnalyticsScreen will also need to be refactored
-            AnalyticsScreen(navController = navController, budgetViewModel = budgetViewModel)
+            val categoryList by budgetViewModel.categoryList.collectAsState()
+            val budgetRepo by budgetViewModel.budgetRepo.collectAsState()
+
+            AnalyticsScreen(categoryList, budgetRepo?.totalBudget ?: 1.0)
         }
         composable(ScreenController.Screen.Categories.name) {
             // NOTE: CategoriesScreen will also need to be refactored
-            CategoriesScreen(navController = navController)
+            val categoryList by budgetViewModel.categoryList.collectAsState()
+
+            CategoriesScreen(
+                categoryList,
+                onAddCategory = {name, totalBudget, remainingBudget -> budgetViewModel.addCategory(name, totalBudget, remainingBudget)},
+                onRemoveCategory = {category -> budgetViewModel.removeCategory(category)},
+                onUpdateCategory = {old, new -> budgetViewModel.updateCategory(old, new)})
         }
     }
 }

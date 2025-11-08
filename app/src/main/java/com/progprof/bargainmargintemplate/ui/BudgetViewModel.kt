@@ -27,6 +27,12 @@ data class Expense(
     val weekOfExpense : Int
 )
 
+data class Category(
+    val categoryName : String = "",
+    val totalBudget : Double,
+    val budgetRemaining : Double
+)
+
 class BudgetViewModel(application: Application) : AndroidViewModel(application) {
 
     // --- CHANGE: All `mutableStateOf` are now `StateFlow`s ---
@@ -37,6 +43,7 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
     private val _monthlyRemainingBudget = MutableStateFlow(0.0)
     private val _totalRemainingBudget = MutableStateFlow(0.0)
     private val _categories = MutableStateFlow("")
+    private val _categoryList = MutableStateFlow(listOf<Category>())
     private val _myNumberOfCategories = MutableStateFlow(1) // Default to 1
     private val _expenses = MutableStateFlow(listOf<Expense>())
     private val _myCurrentWeek = MutableStateFlow(1)
@@ -55,6 +62,7 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
     val monthlyRemainingBudget = _monthlyRemainingBudget.asStateFlow()
     val totalRemainingBudget = _totalRemainingBudget.asStateFlow()
     val categories = _categories.asStateFlow()
+    val categoryList = _categoryList.asStateFlow()
     val myNumberOfCategories = _myNumberOfCategories.asStateFlow()
     val expenses = _expenses.asStateFlow()
     val myCurrentWeek = _myCurrentWeek.asStateFlow()
@@ -300,5 +308,19 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
         changeCurrentWeek(expense.weekOfExpense)
         calculateWeeklyBudget(-expense.amountOfExpense)
         updateDBBudget()
+    }
+
+    fun addCategory(name: String, totalBudget: Double, remainingBudget: Double) {
+        _categoryList.update { oldList -> oldList + Category(name, totalBudget, remainingBudget) }
+    }
+
+    fun removeCategory(category: Category)  {
+        _categoryList.update { categoryList -> categoryList - category }
+    }
+
+    fun updateCategory(oldCategory: Category, newCategory: Category) {
+        _categoryList.value = _categoryList.value.map { current ->
+            if (current == oldCategory) newCategory else current
+        }
     }
 }
