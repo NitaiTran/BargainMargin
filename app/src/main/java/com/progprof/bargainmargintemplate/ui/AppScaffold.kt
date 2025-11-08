@@ -61,9 +61,31 @@ fun AppScaffold() {
 @Composable
 fun AppTopBar(navController: NavController) {
     var showMenu by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
+    val budgetViewModel: BudgetViewModel = viewModel()
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text("Change Week") },
+            text = { Text("Choose Current Week.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDialog = false
+                    // Perform confirmation action here
+                }) {
+                    Text("Confirm")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text("Dismiss")
+                }
+            }
+        )
+    }
 
     TopAppBar(
-        title = { Text("Home Screen") },
+        title = { Text("Bargain Margin") },
         actions = {
             IconButton(onClick = { showMenu = !showMenu }) {
                 Icon(Icons.Default.MoreVert, contentDescription = "More options")
@@ -78,6 +100,33 @@ fun AppTopBar(navController: NavController) {
                         // Navigate to the budget entry screen when clicked
                         navController.navigate(ScreenController.Screen.MainBudgetEntry.name)
                         showMenu = false
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("Edit Weekly Budgets") },
+                    onClick = {
+                        // Navigate to the budget entry screen when clicked
+                        navController.navigate(ScreenController.Screen.WeeklyBudgetEntry.name)
+                        showMenu = false
+                    }
+                )
+
+                DropdownMenuItem(
+                    text = { Text("Change Current Week") },
+                    onClick = {
+                        showDialog = true;
+                    }
+                )
+
+                OptionsDialog(
+                    budgetViewModel = budgetViewModel,
+                    showDialog = showDialog,
+                    onDismissRequest = {
+                        showDialog = false
+                        showMenu = false },
+                    onOptionSelected = { option ->
+                        // Handle the selected option here
+                        println("Selected Option: $option")
                     }
                 )
             }
@@ -128,22 +177,29 @@ fun AppNavHost(
     budgetViewModel: BudgetViewModel,
     modifier: Modifier = Modifier
 ) {
+    var startingScreen = ScreenController.Screen.Home.name
+    val budgetState by budgetViewModel.budgetRepo.collectAsState()
+    budgetState?.totalBudget?.let {
+    if (it <=0)
+    {
+        startingScreen = ScreenController.Screen.MainBudgetEntry.name
+    } else
+    {
+        startingScreen = ScreenController.Screen.Home.name
+    }
+    }
     NavHost(
         navController = navController,
-        startDestination = ScreenController.Screen.MainBudgetEntry.name,
+        startDestination = startingScreen,
         modifier = modifier
     ) {
         // --- CHANGE: All screens now use `collectAsState` ---
 
         composable(ScreenController.Screen.Home.name) {
-            // 1. Collect the state from the ViewModel
-            val monthlyBudget by budgetViewModel.monthlyRemainingBudget.collectAsState()
-            val totalBudget by budgetViewModel.totalRemainingBudget.collectAsState()
 
             // 2. Pass the raw data to the clean HomeScreen. Note that NavController is no longer passed.
             HomeScreen(
-                monthlyBudget = monthlyBudget,
-                totalBudget = totalBudget
+                budgetViewModel = budgetViewModel
             )
         }
         composable(ScreenController.Screen.MainBudgetEntry.name) {
@@ -157,6 +213,18 @@ fun AppNavHost(
                 }
             )
         }
+        composable(ScreenController.Screen.WeeklyBudgetEntry.name) {
+            //val budgetString by budgetViewModel.totalBudget.collectAsState()
+            WeeklyBudgetScreen(
+                navController = navController,
+                budgetViewModel = budgetViewModel,
+                //budgetString = budgetString,
+                //onBudgetStringChange = { newString -> budgetViewModel.onTotalBudgetChanged(newString) },
+                onNextButtonClicked = {
+
+                }
+            )
+        }
         composable(ScreenController.Screen.SplitMainBudget.name) {
             // 1. Collect all the states the screen needs from the ViewModel.
             val categoriesString by budgetViewModel.categories.collectAsState()
@@ -165,9 +233,8 @@ fun AppNavHost(
 
             // 2. Pass those states and the correct lambdas to the screen.
             SplitBudgetScreen(
+                budgetViewModel = budgetViewModel,
                 categoriesString = categoriesString,
-                monthlyRemainingBudget = monthlyBudget,
-                totalRemainingBudget = totalBudget,
                 onCategoriesChange = { newString -> budgetViewModel.onCategoriesChanged(newString) },
                 onNextButtonClicked = {
                     budgetViewModel.settingUpVariables()
@@ -184,16 +251,69 @@ fun AppNavHost(
         }
         composable(ScreenController.Screen.Analytics.name) {
             // NOTE: AnalyticsScreen will also need to be refactored
-            AnalyticsScreen(navController = navController, budgetViewModel = budgetViewModel)
+            val categoryList by budgetViewModel.categoryList.collectAsState()
+            val budgetRepo by budgetViewModel.budgetRepo.collectAsState()
+
+            AnalyticsScreen(categoryList, budgetRepo?.totalBudget ?: 1.0)
         }
         composable(ScreenController.Screen.Categories.name) {
             // NOTE: CategoriesScreen will also need to be refactored
             val categoryList by budgetViewModel.categoryList.collectAsState()
 
-            CategoriesScreen(navController = navController, categoryList, onAddCategory = {name, budget -> budgetViewModel.addCategory(name, budget)})
+            CategoriesScreen(
+                categoryList,
+                onAddCategory = {name, totalBudget, remainingBudget -> budgetViewModel.addCategory(name, totalBudget, remainingBudget)},
+                onRemoveCategory = {category -> budgetViewModel.removeCategory(category)},
+                onUpdateCategory = {old, new -> budgetViewModel.updateCategory(old, new)})
         }
     }
 }
 
-
+@Composable
+fun OptionsDialog(
+    budgetViewModel: BudgetViewModel,
+    showDialog: Boolean,
+    onDismissRequest: () -> Unit,
+    onOptionSelected: (Int) -> Unit // Callback for selected option
+) {
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = onDismissRequest,
+            title = { Text("Change Current Week") },
+            text = {
+                Column {
+                    TextButton(onClick = {
+                        onOptionSelected(1); onDismissRequest()
+                        budgetViewModel.changeCurrentWeek(1)
+                    }) {
+                        Text("Week 1")
+                    }
+                    TextButton(onClick = {
+                        onOptionSelected(2); onDismissRequest()
+                        budgetViewModel.changeCurrentWeek(2)
+                    }) {
+                        Text("Week 2")
+                    }
+                    TextButton(onClick = {
+                        onOptionSelected(3); onDismissRequest()
+                        budgetViewModel.changeCurrentWeek(3)
+                    }) {
+                        Text("Week 3")
+                    }
+                    TextButton(onClick = {
+                        onOptionSelected(4); onDismissRequest()
+                        budgetViewModel.changeCurrentWeek(4)
+                    }) {
+                        Text("Week 4")
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = onDismissRequest) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+}
 

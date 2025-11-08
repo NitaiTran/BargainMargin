@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.progprof.bargainmargintemplate.data.local.entities.ExpenseEntity
 
 @Composable
 fun ExpensesScreen(
@@ -20,16 +21,23 @@ fun ExpensesScreen(
 ) {
     // --- THIS IS THE FIX ---
     // 1. Collect all StateFlows from the ViewModel to get their actual values.
-    val totalBudget by budgetViewModel.totalRemainingBudget.collectAsState()
+    val budgetState by budgetViewModel.budgetRepo.collectAsState()
+    val monthlyBudget = budgetState?.monthlyRemainingBudget ?: 0.0
+    val totalBudget = budgetState?.totalBudget ?: 0.0
+    val currentWeek = budgetState?.myCurrentWeek ?: 1
+    val weeklyBudget = budgetViewModel.getCurrentWeekTotalBudget()
+
+    val weeklyRemaining = budgetViewModel.getCurrentWeekRemainingBudget()
     val monthlyRemaining by budgetViewModel.monthlyRemainingBudget.collectAsState()
     val allExpenses by budgetViewModel.expenses.collectAsState()
     val numberOfCategories by budgetViewModel.myNumberOfCategories.collectAsState()
 
     // 2. Derive weekly budget logic here in the UI, as it's a display concern.
-    val weeklyBudget = if (numberOfCategories > 0) totalBudget / 4 else 0.0
+
+
     val expensesThisWeek = allExpenses.filter { it.weekOfExpense == 1 } // Example for week 1
     val weeklySpent = expensesThisWeek.sumOf { it.amountOfExpense }
-    val weeklyRemaining = weeklyBudget - weeklySpent
+
 
     // Local state for the text input fields
     var expenseInput by remember { mutableStateOf("") }
@@ -109,7 +117,12 @@ fun ExpensesScreen(
                         descriptionInput.isBlank() -> errorMessage = "Description cannot be empty."
                         week == null || week !in 1..4 -> errorMessage = "Please enter a valid week (1-4)."
                         else -> {
+                            budgetViewModel.changeCurrentWeek(week)
                             budgetViewModel.addExpense(amount, descriptionInput, categoryInput, week)
+
+                            budgetViewModel.updateDBBudget()
+
+                            //budgetViewModel.calculateWeeklyBudget(amount)
                             // Clear inputs
                             errorMessage = null
                             expenseInput = ""
@@ -136,14 +149,7 @@ fun ExpensesScreen(
         }
 
         // --- Back Button at the bottom ---
-        Button(
-            onClick = { navController.popBackStack() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp)
-        ) {
-            Text("Back to Home")
-        }
+
     }
 }
 

@@ -29,7 +29,7 @@ fun BudgetScreen(
         // The LogInitialRemainingBudget composable is simple enough that we can just use
         // the NumberField directly here.
         NumberField(
-            labelText = "What is your initial budget?",
+            labelText = "What is your budget?",
             textInput = budgetString,
             onValueChange = onBudgetStringChange, // Pass the correct event handler
             modifier = Modifier

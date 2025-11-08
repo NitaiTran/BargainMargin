@@ -19,40 +19,37 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
 @Composable
-fun AnalyticsScreen(navController: NavController, budgetViewModel: BudgetViewModel) {
+fun AnalyticsScreen(categoryList: List<Category>, totalBudget: Double) {
     // --- CHANGE: Collect the state from the ViewModel ---
-    val totalBudgetValue by budgetViewModel.totalRemainingBudget.collectAsState()
-    val numCategories by budgetViewModel.myNumberOfCategories.collectAsState()
-
+    //val totalBudgetValue by budgetViewModel.totalRemainingBudget.collectAsState()
+    //val numCategories by budgetViewModel.myNumberOfCategories.collectAsState()
+    //val totalBudgetValue = 1500.0
+    val totalBudgetValue = totalBudget
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
-        Text(text = "Analytics Screen", fontSize = 24.sp)
-
         DrawPieChart(
             modifier = Modifier.size(300.dp),
             totalBudget = totalBudgetValue,
-            numberOfCategories = numCategories
+            categoryList = categoryList
         )
 
-        DrawAllPercentageBars(numberOfCategories = numCategories)
-
-        Button(onClick = { navController.popBackStack() }) {
-            Text(text = "Back to Home")
-        }
+        DrawAllPercentageBars(categoryList, totalBudgetValue)
     }
 }
 
 @Composable
-fun DrawPieChart(modifier: Modifier = Modifier, totalBudget: Double, numberOfCategories: Int) {
+fun DrawPieChart(modifier: Modifier = Modifier, totalBudget: Double, categoryList: List<Category>) {
     // CHANGE: This composable no longer needs the whole ViewModel.
     // It receives the exact data it needs, which makes it more reusable.
-
     var startAngle = -90f
     val totalBudgetFloat = totalBudget.toFloat().coerceAtLeast(1f)
-    val categoryBudget = totalBudgetFloat / numberOfCategories
+    var budgetAllocated = 0f
+    //val categoryBudget = totalBudgetFloat / numberOfCategories
+
+    val categoryBudget = if (categoryList.isEmpty()) totalBudgetFloat else totalBudgetFloat / categoryList.size
 
     val colorsArray = arrayOf(
         Color(0xFF3B82F6), Color(0xFFF59E0B), Color(0xFF10B981), Color(0xFF06B6D4),
@@ -61,9 +58,11 @@ fun DrawPieChart(modifier: Modifier = Modifier, totalBudget: Double, numberOfCat
 
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
         Canvas(Modifier.fillMaxSize()) {
-            for (i in 0 until numberOfCategories) {
-                val sweepAngle = 360f * (categoryBudget / totalBudgetFloat)
-                val arcColor = colorsArray[i % colorsArray.size]
+
+            categoryList.forEachIndexed { index, category ->
+                val sweepAngle = 360f * (category.totalBudget.toFloat() / totalBudgetFloat)
+                val arcColor = colorsArray[index % colorsArray.size]
+                budgetAllocated += category.totalBudget.toFloat()
 
                 drawArc(
                     color = arcColor,
@@ -75,26 +74,45 @@ fun DrawPieChart(modifier: Modifier = Modifier, totalBudget: Double, numberOfCat
                 )
                 startAngle += sweepAngle
             }
+
+            drawArc(
+                color = Color.Gray,
+                startAngle = startAngle,
+                sweepAngle = 360f * ((totalBudgetFloat - budgetAllocated) / totalBudgetFloat),
+                useCenter = false,
+                size = Size(size.width, size.height),
+                style = Stroke(width = 40f, cap = StrokeCap.Butt)
+            )
         }
         Text(text = "$${"%.2f".format(totalBudget)}", fontSize = 24.sp)
     }
 }
 
 @Composable
-fun DrawAllPercentageBars(numberOfCategories: Int) {
+fun DrawAllPercentageBars(categoryList: List<Category>, totalBudget: Double) {
     // CHANGE: This composable also receives only the data it needs.
+    if (categoryList.isEmpty())
+        return
+
     val colorsArray = arrayOf(
         Color(0xFF3B82F6), Color(0xFFF59E0B), Color(0xFF10B981), Color(0xFF06B6D4),
         Color(0xFFEC4899), Color(0xFF14B8A6), Color(0xFF9333EA), Color(0xFF6366F1)
     )
 
-    val percentage = 1f / numberOfCategories
     Column {
-        for (i in 0 until numberOfCategories) {
-            val barColor = colorsArray[i % colorsArray.size]
-            DrawBudgetPercentBar(percentage, barColor, "Category ${i + 1}")
+        categoryList.forEachIndexed { index, category ->
+            val barColor = colorsArray[index % colorsArray.size]
+            DrawBudgetPercentBar((category.totalBudget / totalBudget).toFloat(), barColor, category.categoryName)
         }
     }
+
+//    val percentage = 1f / numberOfCategories
+//    Column {
+//        for (i in 0 until numberOfCategories) {
+//            val barColor = colorsArray[i % colorsArray.size]
+//            DrawBudgetPercentBar(percentage, barColor, "Category ${i + 1}")
+//        }
+//    }
 }
 
 @Composable

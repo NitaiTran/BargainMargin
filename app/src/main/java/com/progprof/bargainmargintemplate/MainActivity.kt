@@ -1,6 +1,7 @@
 package com.progprof.bargainmargintemplate
 
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -14,11 +15,16 @@ import androidx.navigation.compose.NavHost //if red, do a gradle sync
 import androidx.navigation.compose.composable
 import com.progprof.bargainmargintemplate.ui.* //imports everything from the ui package
 import com.progprof.bargainmargintemplate.ui.theme.AppTheme
-
-
+import android.app.Application
+import androidx.room.Room
 
 
 class MainActivity : ComponentActivity() {
+
+    companion object {
+        lateinit var database: AppDatabase
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -31,6 +37,13 @@ class MainActivity : ComponentActivity() {
                     AppScaffold()
                 }
             }
+            database = Room.databaseBuilder(
+                applicationContext,
+                AppDatabase::class.java,
+                "budget_tracker_db"
+            ).build()
         }
     }
+
+
 }
