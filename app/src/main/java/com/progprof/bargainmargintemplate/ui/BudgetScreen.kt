@@ -1,3 +1,4 @@
+
 package com.progprof.bargainmargintemplate.ui
 
 import androidx.compose.foundation.layout.Column
@@ -7,38 +8,47 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-// --- THIS IS THE FIX ---
-// The signature is now clean. It only asks for the data it needs and the functions to call.
 @Composable
 fun BudgetScreen(
-    budgetString: String,
-    onBudgetStringChange: (String) -> Unit,
+    budgetViewModel: BudgetViewModel,
     onNextButtonClicked: () -> Unit
 ) {
+    var textInput by remember { mutableStateOf("") }
+    val budget by budgetViewModel.budgetState.collectAsState()
+
+    LaunchedEffect(budget) {
+        if (budget.totalBudget > 0) {
+            textInput = budget.totalBudget.toString()
+        }
+    }
+
     Column(
         modifier = Modifier.padding(16.dp)
     ) {
         AppTitle(Modifier)
 
-        // The LogInitialRemainingBudget composable is simple enough that we can just use
-        // the NumberField directly here.
         NumberField(
             labelText = "What is your budget?",
-            textInput = budgetString,
-            onValueChange = onBudgetStringChange, // Pass the correct event handler
+            textInput = textInput,
+            onValueChange = {
+                textInput = it
+                budgetViewModel.onTotalBudgetChanged(it)
+            },
             modifier = Modifier
                 .padding(bottom = 16.dp)
                 .fillMaxWidth()
         )
 
         CalculateButton(
-            onClick = onNextButtonClicked, // This was already correct
+            onClick = onNextButtonClicked,
             modifier = Modifier
         )
     }
@@ -66,7 +76,6 @@ fun CalculateButton(
     }
 }
 
-// This is a helpful, reusable composable. Let's keep it.
 @Composable
 fun NumberField(
     labelText: String,

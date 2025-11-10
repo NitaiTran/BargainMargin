@@ -42,12 +42,11 @@ android {
 }
 
 dependencies {
-    val room_version = "2.8.3"
+    val room_version = "2.6.1"
     implementation("androidx.room:room-runtime:$room_version")
-
-    // If this project uses any Kotlin source, use Kotlin Symbol Processing (KSP)
-    // See Add the KSP plugin to your project
+    implementation("androidx.room:room-ktx:$room_version")
     ksp("androidx.room:room-compiler:$room_version")
+
     implementation("androidx.compose.material:material-icons-extended-android:1.6.8")
     implementation("androidx.navigation:navigation-compose:2.8.0-beta01") //added sprint 2, Jose
     implementation(libs.androidx.core.ktx)
@@ -59,9 +58,6 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.4")
-    implementation ("androidx.room:room-runtime:2.6.1")
-    ksp ("androidx.room:room-compiler:2.6.1")
-    implementation ("androidx.room:room-ktx:2.6.1")
 
 
     testImplementation(libs.junit)
