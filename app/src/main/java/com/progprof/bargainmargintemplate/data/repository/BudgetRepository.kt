@@ -15,18 +15,23 @@ class BudgetRepository(private val db: AppDatabase) {
     suspend fun initializeIfEmpty() {
         val current = db.budgetDao().getBudget().firstOrNull()
         if (current == null) {
-            db.budgetDao().upsertBudget(BudgetEntity()) // all zero by default
+            db.budgetDao().upsertBudget(BudgetEntity())
         }
     }
 
     suspend fun updateBudget(newBudget: BudgetEntity) {
         db.budgetDao().upsertBudget(newBudget)
     }
-    suspend fun insertExpense(expense: ExpenseEntity) {
-        db.expenseDao().insertExpense(expense)
+
+    suspend fun insertExpense(expenseEntity: ExpenseEntity) {
+        db.expenseDao().insertExpense(expenseEntity)
     }
-    suspend fun addCategory(category: CategoryEntity)
-    {
-        db.categoryDao().insertCategory(category)
+
+    suspend fun deleteExpense(expenseEntity: ExpenseEntity) {
+        db.expenseDao().deleteExpense(expenseEntity)
+    }
+
+    suspend fun insertCategory(categoryEntity: CategoryEntity) {
+        db.categoryDao().insertCategory(categoryEntity)
     }
 }

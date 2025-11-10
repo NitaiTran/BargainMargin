@@ -10,6 +10,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
@@ -19,12 +22,21 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
 @Composable
-fun AnalyticsScreen(categoryList: List<Category>, totalBudget: Double) {
+fun AnalyticsScreen(
+    budgetViewModel: BudgetViewModel
+) {
     // --- CHANGE: Collect the state from the ViewModel ---
-    //val totalBudgetValue by budgetViewModel.totalRemainingBudget.collectAsState()
+    val budget by budgetViewModel.budgetState.collectAsState()
+
+    val totalBudget = budget.totalBudget
+    val allCategory = budgetViewModel.categories.collectAsState()
+    val monthlyRemaining = budget.monthlyRemainingBudget
+    val currentWeek = budget.myCurrentWeek
+    val categoryList = emptyList<Category>()
+    var editingCategory by remember { mutableStateOf<Category?>(null) }
+
     //val numCategories by budgetViewModel.myNumberOfCategories.collectAsState()
-    //val totalBudgetValue = 1500.0
-    val totalBudgetValue = totalBudget
+
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -32,18 +44,16 @@ fun AnalyticsScreen(categoryList: List<Category>, totalBudget: Double) {
     ) {
         DrawPieChart(
             modifier = Modifier.size(300.dp),
-            totalBudget = totalBudgetValue,
+            totalBudget = totalBudget,
             categoryList = categoryList
         )
 
-        DrawAllPercentageBars(categoryList, totalBudgetValue)
+        DrawAllPercentageBars(categoryList, totalBudget)
     }
 }
 
 @Composable
 fun DrawPieChart(modifier: Modifier = Modifier, totalBudget: Double, categoryList: List<Category>) {
-    // CHANGE: This composable no longer needs the whole ViewModel.
-    // It receives the exact data it needs, which makes it more reusable.
     var startAngle = -90f
     val totalBudgetFloat = totalBudget.toFloat().coerceAtLeast(1f)
     var budgetAllocated = 0f
@@ -90,7 +100,6 @@ fun DrawPieChart(modifier: Modifier = Modifier, totalBudget: Double, categoryLis
 
 @Composable
 fun DrawAllPercentageBars(categoryList: List<Category>, totalBudget: Double) {
-    // CHANGE: This composable also receives only the data it needs.
     if (categoryList.isEmpty())
         return
 

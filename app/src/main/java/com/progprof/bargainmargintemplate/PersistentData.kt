@@ -13,8 +13,6 @@ import androidx.room.RoomDatabase
 @Entity(tableName = "budget_table")
 data class PersistentData (
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    //val DBMonthlyTotalBudget: Double?,
-    //val DBMonthlyRemainingBudget: Double?,
     @ColumnInfo(name = "MonthlyTotalBudget") val DBMonthlyTotalBudget: Double?,
     @ColumnInfo(name = "MonthlyRemainingBudget") val DBMonthlyRemainingBudget: Double?
 

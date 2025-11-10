@@ -1,7 +1,9 @@
 package com.progprof.bargainmargintemplate.data.local.entities
 
+
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+
 
 @Entity(tableName = "expenses")
 data class ExpenseEntity(

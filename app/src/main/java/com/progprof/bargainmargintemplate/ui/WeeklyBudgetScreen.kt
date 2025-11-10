@@ -5,12 +5,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,134 +22,106 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 
-// --- THIS IS THE FIX ---
-// The signature is now clean. It only asks for the data it needs and the functions to call.
 @Composable
 fun WeeklyBudgetScreen(
     navController: NavHostController,
     budgetViewModel: BudgetViewModel,
-    //budgetString: String,
-    //onBudgetStringChange: (String) -> Unit,
-    onNextButtonClicked: () -> Unit
 ) {
-    val budgetState by budgetViewModel.budgetRepo.collectAsState()
-    var week1DefaultInput by remember { mutableStateOf<String>(budgetState?.week1TotalBudget.toString())}
-    var week2DefaultInput by remember { mutableStateOf<String>(budgetState?.week2TotalBudget.toString())}
-    var week3DefaultInput by remember { mutableStateOf<String>(budgetState?.week3TotalBudget.toString())}
-    var week4DefaultInput by remember { mutableStateOf<String>(budgetState?.week4TotalBudget.toString())}
+    val budget by budgetViewModel.budgetState.collectAsState()
+    var week1Input by remember { mutableStateOf("") }
+    var week2Input by remember { mutableStateOf("") }
+    var week3Input by remember { mutableStateOf("") }
+    var week4Input by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
+    LaunchedEffect(budget) {
+        week1Input = if (budget.week1TotalBudget > 0) budget.week1TotalBudget.toString() else ""
+        week2Input = if (budget.week2TotalBudget > 0) budget.week2TotalBudget.toString() else ""
+        week3Input = if (budget.week3TotalBudget > 0) budget.week3TotalBudget.toString() else ""
+        week4Input = if (budget.week4TotalBudget > 0) budget.week4TotalBudget.toString() else ""
+    }
+
     Column(
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState())
     ) {
-        AppTitle(Modifier)
+        Text("Edit Weekly Budgets", style = MaterialTheme.typography.headlineMedium)
+        Text("Current Total Budget: $${String.format("%.2f", budget.totalBudget)}")
 
-        // The LogInitialRemainingBudget composable is simple enough that we can just use
-        // the NumberField directly here.
-        Text("Edit Week 1 TOTAL Budget: ")
-        TextField(
-            value = week1DefaultInput,
-            onValueChange = { week1DefaultInput = it },
-            label = { Text("Week 1 Budget") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text("Edit Week 2 TOTAL Budget: ")
-        TextField(
-            value = week2DefaultInput,
-            onValueChange = { week2DefaultInput = it },
-            label = { Text("Week 2 Budget") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text("Edit Week 3 TOTAL Budget: ")
-        TextField(
-            value = week3DefaultInput,
-            onValueChange = { week3DefaultInput = it },
-            label = { Text("Week 3 Budget") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text("Edit Week 4 TOTAL Budget: ")
-        TextField(
-            value = week4DefaultInput,
-            onValueChange = { week4DefaultInput = it },
-            label = { Text("Week 4 Budget") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth()
-
-        )
         Spacer(modifier = Modifier.height(16.dp))
 
-
-
-        WeeklyCalculateButton(
-            navController= navController,
-            onClick = onNextButtonClicked, // This was already correct
-            modifier = Modifier,
-            budgetViewModel = budgetViewModel,
-            week1Input = week1DefaultInput,
-            week2Input = week2DefaultInput,
-            week3Input = week3DefaultInput,
-            week4Input = week4DefaultInput
+        // Week 1
+        TextField(
+            value = week1Input,
+            onValueChange = { week1Input = it },
+            label = { Text("Week 1 Total Budget") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier.fillMaxWidth()
         )
-    }
-}
-
-@Composable
-fun WeeklyCalculateButton(
-    navController: NavHostController,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    budgetViewModel: BudgetViewModel,
-    week1Input: String,
-    week2Input: String,
-    week3Input: String,
-    week4Input: String
-) {
-    val budgetState by budgetViewModel.budgetRepo.collectAsState()
-    var myErrorMessage by remember { mutableStateOf<String?>(null) }
-    if (myErrorMessage != null) {
-        Text(myErrorMessage!!, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
         Spacer(modifier = Modifier.height(8.dp))
-    }
-    Button(
-        onClick = {
-            val newWeek1 = week1Input.toDoubleOrNull()
-            val newWeek2 = week2Input.toDoubleOrNull()
-            val newWeek3 = week3Input.toDoubleOrNull()
-            val newWeek4 = week4Input.toDoubleOrNull()
 
+        // Week 2
+        TextField(
+            value = week2Input,
+            onValueChange = { week2Input = it },
+            label = { Text("Week 2 Total Budget") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(8.dp))
 
-            when {
-                newWeek1 == null || newWeek1 <= 0 -> myErrorMessage = "Please enter a valid Week 1 amount."
-                newWeek2 == null || newWeek2 <= 0 -> myErrorMessage = "Please enter a valid Week 2 amount."
-                newWeek3 == null || newWeek3 <= 0 -> myErrorMessage = "Please enter a valid Week 3 amount."
-                newWeek4 == null || newWeek4 <= 0 -> myErrorMessage = "Please enter a valid Week 4 amount."
-                (newWeek1 + newWeek2 + newWeek3 + newWeek4) > (budgetState?.totalRemainingBudget ?: 0.0) -> myErrorMessage = "Weekly budgets go over monthly budget."
-                else -> {
-                    val newMonthlyTotal = newWeek1 + newWeek2 + newWeek3 + newWeek4
-                    budgetViewModel.setBudgetLimit(newMonthlyTotal)
-                    budgetViewModel.alterWeeklyBudgets(newWeek1,newWeek2,newWeek3,newWeek4)
+        // Week 3
+        TextField(
+            value = week3Input,
+            onValueChange = { week3Input = it },
+            label = { Text("Week 3 Total Budget") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(8.dp))
 
-                    myErrorMessage = null
-                    //budgetViewModel.changeBudgetLimit()
-                    navController.navigate(ScreenController.Screen.Home.name)
+        // Week 4
+        TextField(
+            value = week4Input,
+            onValueChange = { week4Input = it },
+            label = { Text("Week 4 Total Budget") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        if (errorMessage != null) {
+            Text(errorMessage!!, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+        Button(
+            onClick = {
+                val newWeek1 = week1Input.toDoubleOrNull()
+                val newWeek2 = week2Input.toDoubleOrNull()
+                val newWeek3 = week3Input.toDoubleOrNull()
+                val newWeek4 = week4Input.toDoubleOrNull()
+                when {
+                    newWeek1 == null || newWeek1 < 0 -> errorMessage = "Please enter a valid amount for Week 1."
+                    newWeek2 == null || newWeek2 < 0 -> errorMessage = "Please enter a valid amount for Week 2."
+                    newWeek3 == null || newWeek3 < 0 -> errorMessage = "Please enter a valid amount for Week 3."
+                    newWeek4 == null || newWeek4 < 0 -> errorMessage = "Please enter a valid amount for Week 4."
+                    else -> {
+                        errorMessage = null
+                        budgetViewModel.alterWeeklyBudgets(newWeek1, newWeek2, newWeek3, newWeek4)
+                        navController.navigate(ScreenController.Screen.Home.name) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                inclusive = true
+                            }
+                        }
+                    }
                 }
-            }
-
-        },
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text("Change!")
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Save Changes")
+        }
     }
 }
-
-// This is a helpful, reusable composable. Let's keep it.
-
