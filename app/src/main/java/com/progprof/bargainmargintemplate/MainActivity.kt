@@ -1,25 +1,35 @@
 package com.progprof.bargainmargintemplate
+import android.os.Build
 
 
-import android.content.Context
+
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.NavHost //if red, do a gradle sync
-import androidx.navigation.compose.composable
 import com.progprof.bargainmargintemplate.ui.* //imports everything from the ui package
 import com.progprof.bargainmargintemplate.ui.theme.AppTheme
-import android.app.Application
 import androidx.room.Room
+import com.progprof.bargainmargintemplate.ui.BudgetNotificationManager
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 
 
 class MainActivity : ComponentActivity() {
+
+    private val requestNotificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+            if (isGranted) {
+                // Permission granted, you can send notifications now
+            } else {
+                // Permission denied, consider disabling notifications or show rationale
+            }
+        }
 
     companion object {
         lateinit var database: AppDatabase
@@ -27,6 +37,16 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        BudgetNotificationManager.createNotificationChannel(this)
+        requestNotificationPermissionIfNeeded()
+
+        database = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java,
+            "budget_tracker_db"
+        ).build()
+
         setContent {
             AppTheme(dynamicColor = false) {
                 Surface(
@@ -37,11 +57,28 @@ class MainActivity : ComponentActivity() {
                     AppScaffold()
                 }
             }
-            database = Room.databaseBuilder(
-                applicationContext,
-                AppDatabase::class.java,
-                "budget_tracker_db"
-            ).build()
+        }
+    }
+    private fun requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            when {
+                ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    // Permission already granted
+                }
+
+                shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) -> {
+                    // Optionally show rationale UI here before requesting permission
+                    requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+
+                else -> {
+                    // Directly request permission
+                    requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
         }
     }
 
