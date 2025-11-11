@@ -38,7 +38,6 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
 
     private val repository by lazy {
         BudgetRepository(db)
-        BudgetRepository(db)
     }
 
     private val _budgetState = MutableStateFlow(BudgetEntity())
@@ -196,6 +195,26 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    fun removeCategory(category: Category) { /* Placeholder */ }
-    fun updateCategory(oldCategory: Category, newCategory: Category) { /* Placeholder */ }
+    fun removeCategory(category: Category) {
+        viewModelScope.launch {
+            val categoryEntity = com.progprof.bargainmargintemplate.data.local.entities.CategoryEntity(
+                id = category.id,
+                categoryName = category.categoryName,
+                totalBudget = category.totalBudget,
+                budgetRemaining = category.budgetRemaining
+            )
+            repository.deleteCategory(categoryEntity)
+        }
+    }
+    fun updateCategory(oldCategory: Category, newCategory: Category) {
+        viewModelScope.launch {
+            val categoryEntity = com.progprof.bargainmargintemplate.data.local.entities.CategoryEntity(
+                id = oldCategory.id,
+                categoryName = newCategory.categoryName,
+                totalBudget = newCategory.totalBudget,
+                budgetRemaining = newCategory.budgetRemaining
+            )
+            repository.updateCategory(categoryEntity)
+        }
+    }
 }

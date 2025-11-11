@@ -34,4 +34,12 @@ class BudgetRepository(private val db: AppDatabase) {
     suspend fun insertCategory(categoryEntity: CategoryEntity) {
         db.categoryDao().insertCategory(categoryEntity)
     }
+
+    suspend fun deleteCategory(categoryEntity: CategoryEntity) {
+        db.categoryDao().deleteCategory(categoryEntity)
+    }
+
+    suspend fun updateCategory(categoryEntity: CategoryEntity) {
+        db.categoryDao().updateCategory(categoryEntity)
+    }
 }

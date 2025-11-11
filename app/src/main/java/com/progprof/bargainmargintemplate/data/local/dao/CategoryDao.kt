@@ -12,4 +12,10 @@ interface CategoryDao {
 
     @Query("SELECT * FROM categories")
     fun getAllCategories(): Flow<List<CategoryEntity>>
+
+    @Delete
+    suspend fun deleteCategory(categoryEntity: CategoryEntity)
+
+    @Update
+    suspend fun updateCategory(categoryEntity: CategoryEntity)
 }

@@ -25,14 +25,12 @@ import androidx.navigation.NavController
 fun AnalyticsScreen(
     budgetViewModel: BudgetViewModel
 ) {
-    // --- CHANGE: Collect the state from the ViewModel ---
     val budget by budgetViewModel.budgetState.collectAsState()
 
     val totalBudget = budget.totalBudget
-    val allCategory = budgetViewModel.categories.collectAsState()
     val monthlyRemaining = budget.monthlyRemainingBudget
     val currentWeek = budget.myCurrentWeek
-    val categoryList = emptyList<Category>()
+    val categoryList by budgetViewModel.categories.collectAsState()
     var editingCategory by remember { mutableStateOf<Category?>(null) }
 
     //val numCategories by budgetViewModel.myNumberOfCategories.collectAsState()
@@ -115,13 +113,6 @@ fun DrawAllPercentageBars(categoryList: List<Category>, totalBudget: Double) {
         }
     }
 
-//    val percentage = 1f / numberOfCategories
-//    Column {
-//        for (i in 0 until numberOfCategories) {
-//            val barColor = colorsArray[i % colorsArray.size]
-//            DrawBudgetPercentBar(percentage, barColor, "Category ${i + 1}")
-//        }
-//    }
 }
 
 @Composable

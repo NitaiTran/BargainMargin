@@ -17,7 +17,8 @@ import androidx.compose.ui.unit.sp
 fun CategoriesScreen(
     budgetViewModel: BudgetViewModel
 ) {
-    val categoryList = emptyList<Category>()
+    val budget by budgetViewModel.budgetState.collectAsState()
+    val allCategories by budgetViewModel.categories.collectAsState()
     var editingCategory by remember { mutableStateOf<Category?>(null) }
 
     Column(
@@ -31,12 +32,18 @@ fun CategoriesScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         LazyColumn {
-            items(categoryList) { category ->
-                DrawCategoryCard(
-                    category,
-                    onRemoveCategory = { budgetViewModel.removeCategory(it) },
-                    onEditCategory = { editingCategory = it }
-                )
+            if (allCategories.isEmpty()) {
+                item {
+                    Text("No categories yet.", modifier = Modifier.padding(top = 8.dp))
+                }
+            } else {
+                items(allCategories, key = { it.id }) { category ->
+                    DrawCategoryCard(
+                        category,
+                        onRemoveCategory = { budgetViewModel.removeCategory(it) },
+                        onEditCategory = { editingCategory = it }
+                    )
+                }
             }
         }
 
@@ -197,7 +204,8 @@ fun EditCategory(category: Category, onDismiss: () -> Unit, onSave: (Category) -
                 } else if (parsedBudget == null || parsedBudget <= 0) {
                     error = "Invalid budget"
                 } else {
-                    onSave(category.copy(categoryName = name, totalBudget = parsedBudget, budgetRemaining = remainingBudget))
+
+                    onSave(category.copy(categoryName = name, totalBudget = parsedBudget, budgetRemaining = parsedBudget))
                     onDismiss()
                 }
             }) {
