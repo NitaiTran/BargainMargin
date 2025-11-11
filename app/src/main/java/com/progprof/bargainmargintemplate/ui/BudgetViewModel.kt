@@ -28,6 +28,8 @@ data class Category(
 
 class BudgetViewModel(application: Application) : AndroidViewModel(application) {
 
+    private val appContext = getApplication<Application>().applicationContext
+
     private val db by lazy {
         Room.databaseBuilder(
             application.applicationContext,
@@ -125,6 +127,44 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
                 week4RemainingBudget = if (week == 4) currentBudget.week4RemainingBudget - amount else currentBudget.week4RemainingBudget
             )
             repository.updateBudget(updatedBudget)
+            checkAndNotifyBudget(updatedBudget, week)
+        }
+    }
+
+    private fun checkAndNotifyBudget(budget: BudgetEntity, week: Int) {
+
+        val monthlyPercentRemaining = budget.monthlyRemainingBudget / budget.totalBudget
+
+        if (monthlyPercentRemaining <= 0.25) {
+            BudgetNotificationManager.sendNotification(
+                appContext,
+                "Monthly Budget Alert",
+                "You've used 75% of your monthly budget."
+            )
+        }
+
+        val weeklyRemaining = when (week) {
+            1 -> budget.week1RemainingBudget
+            2 -> budget.week2RemainingBudget
+            3 -> budget.week3RemainingBudget
+            else -> budget.week4RemainingBudget
+        }
+
+        val weeklyTotal = when (week) {
+            1 -> budget.week1TotalBudget
+            2 -> budget.week2TotalBudget
+            3 -> budget.week3TotalBudget
+            else -> budget.week4TotalBudget
+        }
+
+        val weeklyPercentRemaining = weeklyRemaining / weeklyTotal
+
+        if (weeklyPercentRemaining <= 0.25) {
+            BudgetNotificationManager.sendNotification(
+                appContext,
+                "Weekly Budget Alert",
+                "You've used 75% of your Week $week budget."
+            )
         }
     }
 
