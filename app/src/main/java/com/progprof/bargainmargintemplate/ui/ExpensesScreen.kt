@@ -22,6 +22,8 @@ fun ExpensesScreen(
 ) {
     val budget by budgetViewModel.budgetState.collectAsState()
     val allExpenses by budgetViewModel.expenses.collectAsState()
+    val allCategories by budgetViewModel.categories.collectAsState()
+    var selectedCategory by remember { mutableStateOf<Category?>(null) }
     val totalBudget = budget.totalBudget
     val monthlyRemaining = budget.monthlyRemainingBudget
     val currentWeek = budget.myCurrentWeek
@@ -42,7 +44,7 @@ fun ExpensesScreen(
 
     var expenseInput by remember { mutableStateOf("") }
     var descriptionInput by remember { mutableStateOf("") }
-    var categoryInput by remember { mutableStateOf("") }
+
     var weekInput by remember { mutableStateOf(currentWeek.toString()) } // Default to current week
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
@@ -100,6 +102,12 @@ fun ExpensesScreen(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+                CategoryDropdown(
+                    categories = allCategories,
+                    selectedCategory = selectedCategory,
+                    onCategorySelected = { selectedCategory = it }
+                )
                 Spacer(modifier = Modifier.height(16.dp))
 
                 if (errorMessage != null) {
@@ -120,15 +128,14 @@ fun ExpensesScreen(
                             amount == null || amount <= 0 -> errorMessage =
                                 "Please enter a valid expense amount."
                             descriptionInput.isBlank() -> errorMessage = "Description cannot be empty."
-                            week == null || week !in 1..4 -> errorMessage =
-                                "Please enter a valid week (1-4)."
+                            week == null || week !in 1..4 -> errorMessage = "Please enter a valid week (1-4)."
+                            selectedCategory == null -> errorMessage = "Please select a category."
                             else -> {
-                                budgetViewModel.addExpense(amount, descriptionInput, categoryInput, week)
-
+                                budgetViewModel.addExpense(amount, descriptionInput, selectedCategory!!.categoryName, week)
                                 errorMessage = null
                                 expenseInput = ""
                                 descriptionInput = ""
-                                // categoryInput = "" // Optional: you might want to keep the category
+                                selectedCategory = null
                             }
                         }
                     },
@@ -170,6 +177,7 @@ fun ExpenseItem(expense: Expense, onRemoveClick: () -> Unit) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(expense.descriptionOfExpense, style = MaterialTheme.typography.bodyLarge)
                 Text("Week: ${expense.weekOfExpense}", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                Text("Category: ${expense.categoryOfExpense}", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
             }
             Text("-$${"%.2f".format(expense.amountOfExpense)}", color = MaterialTheme.colorScheme.error)
             TextButton(onClick = onRemoveClick) {
@@ -178,3 +186,57 @@ fun ExpenseItem(expense: Expense, onRemoveClick: () -> Unit) {
         }
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CategoryDropdown(
+    categories: List<Category>,
+    selectedCategory: Category?,onCategorySelected: (Category) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var isExpanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = isExpanded,
+        onExpandedChange = { isExpanded = it },
+        modifier = modifier
+    ) {
+        TextField(
+            value = selectedCategory?.categoryName ?: "Select a Category",
+            onValueChange = {}, // The value is read-only
+            readOnly = true,
+            label = { Text("Category") },
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
+            },
+            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            modifier = Modifier
+                .menuAnchor() // This is important for positioning the dropdown
+                .fillMaxWidth()
+        )
+
+        ExposedDropdownMenu(
+            expanded = isExpanded,
+            onDismissRequest = { isExpanded = false }
+        ) {
+            if (categories.isEmpty()) {
+                DropdownMenuItem(
+                    text = { Text("No categories available. Add one on the Categories screen.") },
+                    onClick = { isExpanded = false },
+                    enabled = false // Make it un-clickable
+                )
+            } else {
+                categories.forEach { category ->
+                    DropdownMenuItem(
+                        text = { Text(category.categoryName) },
+                        onClick = {
+                            onCategorySelected(category)
+                            isExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
