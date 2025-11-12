@@ -2,7 +2,6 @@ package com.progprof.bargainmargintemplate.data.local.dao
 import com.progprof.bargainmargintemplate.data.local.entities.ExpenseEntity
 
 import androidx.room.*
-import com.progprof.bargainmargintemplate.ui.Expense
 import kotlinx.coroutines.flow.Flow
 
 @Dao

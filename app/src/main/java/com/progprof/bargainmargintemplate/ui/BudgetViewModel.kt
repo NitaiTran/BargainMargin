@@ -122,7 +122,7 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
     fun addExpense(amount: Double, description: String, category: String, week: Int) {
         if (amount <= 0) return
         viewModelScope.launch {
-            val newExpenseEntity = com.progprof.bargainmargintemplate.data.local.entities.ExpenseEntity(
+            val newExpenseEntity = ExpenseEntity(
                 amountOfExpense = amount,
                 descriptionOfExpense = description,
                 categoryOfExpense = category,
@@ -182,7 +182,7 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
 
     fun removeExpense(expense: Expense) {
         viewModelScope.launch {
-            val expenseEntityToDelete = com.progprof.bargainmargintemplate.data.local.entities.ExpenseEntity(
+            val expenseEntityToDelete = ExpenseEntity(
                 id = expense.id,
                 amountOfExpense = expense.amountOfExpense,
                 descriptionOfExpense = expense.descriptionOfExpense,
