@@ -15,6 +15,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavController
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 
 @Composable
 fun HomeScreen(
@@ -22,6 +24,8 @@ fun HomeScreen(
     navController: NavController
 ) {
     val budget by budgetViewModel.budgetState.collectAsState()
+    val recentExpenses by budgetViewModel.recentExpenses.collectAsState()
+
 
     if (budget.totalBudget <= 0.0) {
         LaunchedEffect(budget.totalBudget) {
@@ -94,5 +98,27 @@ fun HomeScreen(
                 .padding(bottom = 10.dp),
             color = MaterialTheme.colorScheme.primary
         )
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text("Recent Expenses", style = MaterialTheme.typography.headlineSmall)
+        Spacer(modifier = Modifier.height(8.dp))
+
+        if (recentExpenses.isEmpty()) {
+            Text("No recent expenses", style = MaterialTheme.typography.bodyMedium)
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 200.dp)
+            ) {
+                items(recentExpenses) { expense ->
+                    Text(
+                        text = "${expense.descriptionOfExpense}: $${"%.2f".format(expense.amountOfExpense)} (${expense.categoryOfExpense})",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    )
+                }
+            }
+        }
     }
 }

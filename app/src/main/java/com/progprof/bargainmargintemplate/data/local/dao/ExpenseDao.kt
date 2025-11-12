@@ -8,6 +8,9 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ExpenseDao {
 
+    @Query("SELECT * FROM expenses ORDER BY id DESC LIMIT :limit")
+    fun getRecentExpenses(limit: Int): Flow<List<ExpenseEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertExpense(expense: ExpenseEntity)
 

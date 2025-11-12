@@ -7,6 +7,7 @@ import androidx.room.Room
 import com.progprof.bargainmargintemplate.data.local.AppDatabase
 import com.progprof.bargainmargintemplate.data.local.entities.BudgetEntity
 import com.progprof.bargainmargintemplate.data.repository.BudgetRepository
+import com.progprof.bargainmargintemplate.data.local.entities.ExpenseEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -41,6 +42,10 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
     private val repository by lazy {
         BudgetRepository(db)
     }
+
+    private val _recentExpenses = MutableStateFlow<List<ExpenseEntity>>(emptyList())
+    val recentExpenses: StateFlow<List<ExpenseEntity>> = _recentExpenses
+
 
     private val _budgetState = MutableStateFlow(BudgetEntity())
     val budgetState: StateFlow<BudgetEntity> = _budgetState.asStateFlow()
@@ -81,7 +86,14 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
                     _budgetState.value = budgetEntity
                 }
         }
-    }
+
+            // Separate coroutine for recent expenses collection
+            viewModelScope.launch {
+                repository.getRecentExpenses(5).collect { expenses ->
+                    _recentExpenses.value = expenses
+                }
+            }
+        }
     fun onTotalBudgetChanged(newBudgetString: String) {
         val newTotal = newBudgetString.toDoubleOrNull() ?: 0.0
         if (newTotal <= 0) return
