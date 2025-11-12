@@ -2,11 +2,13 @@ package com.progprof.bargainmargintemplate.data.local.dao
 import com.progprof.bargainmargintemplate.data.local.entities.ExpenseEntity
 
 import androidx.room.*
-import com.progprof.bargainmargintemplate.ui.Expense
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ExpenseDao {
+
+    @Query("SELECT * FROM expenses ORDER BY id DESC LIMIT :limit")
+    fun getRecentExpenses(limit: Int): Flow<List<ExpenseEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertExpense(expense: ExpenseEntity)
