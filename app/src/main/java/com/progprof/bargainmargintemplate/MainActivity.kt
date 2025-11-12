@@ -1,4 +1,6 @@
 package com.progprof.bargainmargintemplate
+import android.os.Build
+
 
 
 import android.os.Bundle
@@ -7,20 +9,44 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.NavHost //if red, do a gradle sync
-import androidx.navigation.compose.composable
 import com.progprof.bargainmargintemplate.ui.* //imports everything from the ui package
 import com.progprof.bargainmargintemplate.ui.theme.AppTheme
-
-
+import androidx.room.Room
+import com.progprof.bargainmargintemplate.ui.BudgetNotificationManager
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 
 
 class MainActivity : ComponentActivity() {
+
+    private val requestNotificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+            if (isGranted) {
+                // Permission granted, you can send notifications now
+            } else {
+                // Permission denied, consider disabling notifications or show rationale
+            }
+        }
+
+    companion object {
+        lateinit var database: AppDatabase
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        BudgetNotificationManager.createNotificationChannel(this)
+        requestNotificationPermissionIfNeeded()
+
+        database = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java,
+            "budget_tracker_db"
+        ).build()
+
         setContent {
             AppTheme(dynamicColor = false) {
                 Surface(
@@ -28,84 +54,33 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background)
                 {
                     //Entry point for the App's navigation
-                    BargainMarginApp()
+                    AppScaffold()
                 }
             }
         }
     }
-}
-
-@Composable
-fun BargainMarginApp() {
-    // Create the NavController, which manages the back stack and navigation
-    val navController = androidx.navigation.compose.rememberNavController()
-    // Share one ViewModel instance across both screens, so variables are shared
-    val budgetViewModel: BudgetViewModel = viewModel()
-
-    NavHost(
-        navController = navController, // The NavController
-        startDestination = ScreenController.Screen.MainBudgetEntry.name // The first screen to show
-    ){
-        //Define Home screen
-        composable(route = ScreenController.Screen.Home.name){
-            HomeScreen(
-                navController = navController,
-                budgetViewModel = budgetViewModel
-            )
-        }
-
-        //Define the Main Budget Screen
-        composable(route = ScreenController.Screen.MainBudgetEntry.name){
-            BudgetScreen(
-                budgetViewModel = budgetViewModel,
-                onNextButtonClicked = {
-                    // 1. Set the budget in the ViewModel
-                    budgetViewModel.changeBudgetLimit()
-                    // 2. Navigate to Home screen
-                    navController.navigate(ScreenController.Screen.SplitMainBudget.name)
+    private fun requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            when {
+                ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    // Permission already granted
                 }
-            )
-        }
 
-        // Define the Split Main Budget Screen
-        composable(route = ScreenController.Screen.SplitMainBudget.name) {
-           SplitBudgetScreen(
-               budgetViewModel = budgetViewModel,
-               onNextButtonClicked = {
-                   // 1. Set the budget in the ViewModel
-                   budgetViewModel.settingUpVariables()
-                   // 2. Navigate to the next screen
-                   navController.navigate(ScreenController.Screen.Home.name)
-               }
-           )
-        }
+                shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) -> {
+                    // Optionally show rationale UI here before requesting permission
+                    requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
 
-
-        // Define Expense Tracking screen
-        composable("expenseTracker") {
-            ExpensesScreen(
-                budgetViewModel = budgetViewModel,
-                navController = navController
-            )
-        }
-
-
-
-        // Define Analytics screen
-        composable(route = ScreenController.Screen.Analytics.name) {
-            AnalyticsScreen(navController = navController, budgetViewModel)
-        }
-
-        // Define Categories screen
-        composable(route = ScreenController.Screen.Categories.name) {
-            CategoriesScreen(navController = navController)
-        }
-
-        // Define Settings screen
-        composable(route = ScreenController.Screen.Settings.name) {
-            SettingsScreen(navController = navController)
+                else -> {
+                    // Directly request permission
+                    requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
         }
     }
 
-}
 
+}

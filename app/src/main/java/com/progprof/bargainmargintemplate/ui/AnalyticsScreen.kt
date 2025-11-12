@@ -4,20 +4,15 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
@@ -27,65 +22,55 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
 @Composable
-fun AnalyticsScreen(navController: NavController, budgetViewModel: BudgetViewModel) {
+fun AnalyticsScreen(
+    budgetViewModel: BudgetViewModel
+) {
+    val budget by budgetViewModel.budgetState.collectAsState()
+
+    val totalBudget = budget.totalBudget
+    val monthlyRemaining = budget.monthlyRemainingBudget
+    val currentWeek = budget.myCurrentWeek
+    val categoryList by budgetViewModel.categories.collectAsState()
+    var editingCategory by remember { mutableStateOf<Category?>(null) }
+
+    //val numCategories by budgetViewModel.myNumberOfCategories.collectAsState()
+
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween
+        verticalArrangement = Arrangement.SpaceEvenly
     ) {
-        Text(text = "Analytics Screen")
-
         DrawPieChart(
             modifier = Modifier.size(300.dp),
-            budgetViewModel)
+            totalBudget = totalBudget,
+            categoryList = categoryList
+        )
 
-        DrawAllPercentageBars(budgetViewModel)
-
-        Button(onClick = { navController.popBackStack() }) {
-            Text(text = "Back to Home")
-        }
+        DrawAllPercentageBars(categoryList, totalBudget)
     }
 }
 
 @Composable
-fun DrawPieChart(modifier: Modifier = Modifier, budgetViewModel: BudgetViewModel) {
+fun DrawPieChart(modifier: Modifier = Modifier, totalBudget: Double, categoryList: List<Category>) {
     var startAngle = -90f
-    val totalBudget = budgetViewModel.totalBudget.toFloatOrNull() ?: 1f
+    val totalBudgetFloat = totalBudget.toFloat().coerceAtLeast(1f)
+    var budgetAllocated = 0f
+    //val categoryBudget = totalBudgetFloat / numberOfCategories
 
-    // right now we have no way of tracking how much is allotted to a category
-    // so I have to hardcode it
-    val categoryBudget = totalBudget / budgetViewModel.myNumberOfCategories
+    val categoryBudget = if (categoryList.isEmpty()) totalBudgetFloat else totalBudgetFloat / categoryList.size
 
-    // we can also freely add more colors here or let the user customize the color
-    // of a category themselves
     val colorsArray = arrayOf(
-        Color(0xFF3B82F6),
-        Color(0xFFF59E0B),
-        Color(0xFF10B981),
-        Color(0xFF06B6D4),
-        Color(0xFFEC4899),
-        Color(0xFF14B8A6),
-        Color(0xFF9333EA),
-        Color(0xFF6366F1)
+        Color(0xFF3B82F6), Color(0xFFF59E0B), Color(0xFF10B981), Color(0xFF06B6D4),
+        Color(0xFFEC4899), Color(0xFF14B8A6), Color(0xFF9333EA), Color(0xFF6366F1)
     )
 
-    // check to see if there's an even number of categories
-    val evenNumberOfCategories = (budgetViewModel.myNumberOfCategories % 2 == 0)
-
-    var arcColor: Color
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
         Canvas(Modifier.fillMaxSize()) {
-            // loop over the number of categories, drawing an arc for each one
-            // when we add tracking category budget amounts, we can calculate the
-            // sweep angle with that value rather than a hardcoded value
-            for (i in 0 until budgetViewModel.myNumberOfCategories) {
-                // scale how much the arc will take via (currentSlice / total)
-                val sweepAngle = 360f * (categoryBudget / totalBudget)
 
-                arcColor = if (i == budgetViewModel.myNumberOfCategories - 1 && !evenNumberOfCategories)
-                    colorsArray[(i % colorsArray.size) + 1]
-                else
-                    colorsArray[i % colorsArray.size]
+            categoryList.forEachIndexed { index, category ->
+                val sweepAngle = 360f * (category.totalBudget.toFloat() / totalBudgetFloat)
+                val arcColor = colorsArray[index % colorsArray.size]
+                budgetAllocated += category.totalBudget.toFloat()
 
                 drawArc(
                     color = arcColor,
@@ -95,52 +80,49 @@ fun DrawPieChart(modifier: Modifier = Modifier, budgetViewModel: BudgetViewModel
                     size = Size(size.width, size.height),
                     style = Stroke(width = 40f, cap = StrokeCap.Butt)
                 )
-
                 startAngle += sweepAngle
             }
+
+            drawArc(
+                color = Color.Gray,
+                startAngle = startAngle,
+                sweepAngle = 360f * ((totalBudgetFloat - budgetAllocated) / totalBudgetFloat),
+                useCenter = false,
+                size = Size(size.width, size.height),
+                style = Stroke(width = 40f, cap = StrokeCap.Butt)
+            )
         }
-
-        Text(text = "$" + budgetViewModel.totalBudget, fontSize = 24.sp)
-
+        Text(text = "$${"%.2f".format(totalBudget)}", fontSize = 24.sp)
     }
 }
 
 @Composable
-fun DrawAllPercentageBars(budgetViewModel: BudgetViewModel)
-{
+fun DrawAllPercentageBars(categoryList: List<Category>, totalBudget: Double) {
+    if (categoryList.isEmpty())
+        return
+
     val colorsArray = arrayOf(
-        Color(0xFF3B82F6),
-        Color(0xFFF59E0B),
-        Color(0xFF10B981),
-        Color(0xFF06B6D4),
-        Color(0xFFEC4899),
-        Color(0xFF14B8A6),
-        Color(0xFF9333EA),
-        Color(0xFF6366F1)
+        Color(0xFF3B82F6), Color(0xFFF59E0B), Color(0xFF10B981), Color(0xFF06B6D4),
+        Color(0xFFEC4899), Color(0xFF14B8A6), Color(0xFF9333EA), Color(0xFF6366F1)
     )
 
-    val evenNumberOfCategories = (budgetViewModel.myNumberOfCategories % 2 == 0)
-
-    var barColor = colorsArray[0]
-
-    val percentage = 1f / budgetViewModel.myNumberOfCategories
-    for (i in 0 until budgetViewModel.myNumberOfCategories) {
-
-        barColor = if (i == budgetViewModel.myNumberOfCategories - 1 && !evenNumberOfCategories)
-            colorsArray[(i % colorsArray.size) + 1]
-        else
-            colorsArray[i % colorsArray.size]
-
-        DrawBudgetPercentBar(percentage, barColor)
+    Column {
+        categoryList.forEachIndexed { index, category ->
+            val barColor = colorsArray[index % colorsArray.size]
+            DrawBudgetPercentBar((category.totalBudget / totalBudget).toFloat(), barColor, category.categoryName)
+        }
     }
+
 }
 
 @Composable
-fun DrawBudgetPercentBar(percentage: Float, color: Color)
-{
-    Row(modifier = Modifier) {
-        Text(text = "${percentage * 100}%")
-        Spacer(modifier = Modifier.width(8.dp))
-        Box(modifier = Modifier.width((percentage * 200).dp).height(20.dp).background(color))
+fun DrawBudgetPercentBar(percentage: Float, color: Color, label: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = label, modifier = Modifier.width(100.dp))
+        Box(modifier = Modifier.weight(percentage).height(20.dp).background(color))
+        Text(text = " ${"%.0f".format(percentage * 100)}%", modifier = Modifier.padding(start = 8.dp))
     }
 }
