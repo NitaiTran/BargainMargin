@@ -9,7 +9,7 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a60b997b-16cd-49de-a84e-689e7ce6c120" name="Changes" comment="Merge branch 'develop' of https://github.com/NitaiTran/BargainMargin into Sprint3Miguel&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml" />
+    <list default="true" id="a60b997b-16cd-49de-a84e-689e7ce6c120" name="Changes" comment="Trying to merge into main" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -92,24 +92,24 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Android App.BargainMarginApp.executor": "Run",
-    "Android App.BargainMarginTemplate.executor": "Run",
-    "Android App.app.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.readMode.enableVisualFormatting": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "cf.first.check.clang-format": "false",
-    "cidr.known.project.marker": "true",
-    "git-widget-placeholder": "#77 on develop",
-    "last_opened_file_path": "C:/Users/nitai/AndroidStudioProjects/BargainMargin/app/src/main/java/com/progprof/bargainmargintemplate/ui",
-    "settings.editor.selected.configurable": "live.edit.configurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Android App.BargainMarginApp.executor&quot;: &quot;Run&quot;,
+    &quot;Android App.BargainMarginTemplate.executor&quot;: &quot;Run&quot;,
+    &quot;Android App.app.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#77 on develop&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/nitai/AndroidStudioProjects/BargainMargin/app/src/main/java/com/progprof/bargainmargintemplate/ui&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;live.edit.configurable&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\nitai\AndroidStudioProjects\BargainMargin\app\src\main\java\com\progprof\bargainmargintemplate\ui" />
