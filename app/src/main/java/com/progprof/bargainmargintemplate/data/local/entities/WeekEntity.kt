@@ -1,13 +1,25 @@
 package com.progprof.bargainmargintemplate.data.local.entities
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "monthlyData")
+@Entity(
+    tableName = "weeks",
+    foreignKeys = [
+        ForeignKey(
+            entity = MonthEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["monthId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ]
+)
 data class WeekEntity(
-    @PrimaryKey val id: Int = 0,
-    val myBudgetEntity: BudgetEntity,
-    val myCategoryEntity: CategoryEntity,
-    val myExpenseEntity: ExpenseEntity
-
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
+    val monthId: Long,
+    val weekNumber: Int,
+    val weekBudget: Double,
+    val weekSpent: Double = 0.0
 )

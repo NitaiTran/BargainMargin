@@ -9,6 +9,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -30,27 +31,38 @@ fun WeeklyBudgetScreen(
     navController: NavHostController,
     budgetViewModel: BudgetViewModel,
 ) {
-    val budget by budgetViewModel.budgetState.collectAsState()
+    val uiState by budgetViewModel.uiState.collectAsState()
+    val monthWithWeeks = uiState.monthWithWeeks
     var week1Input by remember { mutableStateOf("") }
     var week2Input by remember { mutableStateOf("") }
     var week3Input by remember { mutableStateOf("") }
     var week4Input by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(budget) {
-        week1Input = if (budget.week1TotalBudget > 0) budget.week1TotalBudget.toString() else ""
-        week2Input = if (budget.week2TotalBudget > 0) budget.week2TotalBudget.toString() else ""
-        week3Input = if (budget.week3TotalBudget > 0) budget.week3TotalBudget.toString() else ""
-        week4Input = if (budget.week4TotalBudget > 0) budget.week4TotalBudget.toString() else ""
+    LaunchedEffect(monthWithWeeks) {
+        monthWithWeeks?.weeks?.let { weeks ->
+            if (weeks.size == 4) {
+                weeks.find { it.weekNumber == 1 }?.let { week1Input = it.weekBudget.toBigDecimal().toPlainString() }
+                weeks.find { it.weekNumber == 2 }?.let { week2Input = it.weekBudget.toBigDecimal().toPlainString() }
+                weeks.find { it.weekNumber == 3 }?.let { week3Input = it.weekBudget.toBigDecimal().toPlainString() }
+                weeks.find { it.weekNumber == 4 }?.let { week4Input = it.weekBudget.toBigDecimal().toPlainString() }
+            }
+        }
     }
-
+    if (monthWithWeeks == null) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            CircularProgressIndicator()
+            Text("Loading monthly budget...")
+        }
+        return
+    }
     Column(
         modifier = Modifier
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
         Text("Edit Weekly Budgets", style = MaterialTheme.typography.headlineMedium)
-        Text("Current Total Budget: $${String.format("%.2f", budget.totalBudget)}")
+        Text("Current Total Budget: $${String.format("%.2f", monthWithWeeks.month.totalBudget)}")
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -110,6 +122,7 @@ fun WeeklyBudgetScreen(
                     newWeek4 == null || newWeek4 < 0 -> errorMessage = "Please enter a valid amount for Week 4."
                     else -> {
                         errorMessage = null
+
                         budgetViewModel.alterWeeklyBudgets(newWeek1, newWeek2, newWeek3, newWeek4)
                         navController.navigate(ScreenController.Screen.Home.name) {
                             popUpTo(navController.graph.findStartDestination().id) {

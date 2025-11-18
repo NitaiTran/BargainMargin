@@ -14,150 +14,132 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExpensesScreen(
     budgetViewModel: BudgetViewModel,
     navController: NavController
 ) {
-    val budget by budgetViewModel.budgetState.collectAsState()
-    val allExpenses by budgetViewModel.expenses.collectAsState()
+    val uiState by budgetViewModel.uiState.collectAsState()
     val allCategories by budgetViewModel.categories.collectAsState()
-    var selectedCategory by remember { mutableStateOf<Category?>(null) }
-    val totalBudget = budget.totalBudget
-    val monthlyRemaining = budget.monthlyRemainingBudget
-    val currentWeek = budget.myCurrentWeek
-    val weeklyTotal = when (currentWeek) {
-        1 -> budget.week1TotalBudget
-        2 -> budget.week2TotalBudget
-        3 -> budget.week3TotalBudget
-        4 -> budget.week4TotalBudget
-        else -> 0.0
-    }
-    val weeklyRemaining = when (currentWeek) {
-        1 -> budget.week1RemainingBudget
-        2 -> budget.week2RemainingBudget
-        3 -> budget.week3RemainingBudget
-        4 -> budget.week4RemainingBudget
-        else -> 0.0
-    }
 
+    val monthWithWeeks = uiState.monthWithWeeks
+    val currentWeekNumber = uiState.currentWeekNumber
+    val expensesForCurrentWeek = uiState.expensesForCurrentWeek
+
+    val month = monthWithWeeks?.month
+    val currentWeek = monthWithWeeks?.weeks?.find { it.weekNumber == currentWeekNumber }
     var expenseInput by remember { mutableStateOf("") }
     var descriptionInput by remember { mutableStateOf("") }
-
-    var weekInput by remember { mutableStateOf(currentWeek.toString()) } // Default to current week
+    var selectedCategory by remember { mutableStateOf<Category?>(null) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
-
-    LaunchedEffect(currentWeek) {
-        weekInput = currentWeek.toString()
-    }
-
+    var isAddingExpense by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-        ) {
-            item {
-                Text("Expense Tracker", style = MaterialTheme.typography.headlineMedium)
-                Spacer(modifier = Modifier.height(16.dp))
-                // Monthly budget info
-                Text("Total Monthly Budget: $${"%.2f".format(totalBudget)}")
-                Text(
-                    text = "Monthly Remaining: $${"%.2f".format(monthlyRemaining)}",
-                    color = if (monthlyRemaining < 0) MaterialTheme.colorScheme.error else Color.Unspecified
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                // Weekly budget info
-                Text("Week $currentWeek Budget: $${"%.2f".format(weeklyTotal)}")
-                Text(
-                    text = "Week $currentWeek Remaining: $${"%.2f".format(weeklyRemaining)}",
-                    color = if (weeklyRemaining < 0) MaterialTheme.colorScheme.error else Color.Unspecified
-                )
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Input Fields
-                TextField(
-                    value = expenseInput,
-                    onValueChange = { expenseInput = it },
-                    label = { Text("Expense Amount") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                TextField(
-                    value = descriptionInput,
-                    onValueChange = { descriptionInput = it },
-                    label = { Text("Description") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                TextField(
-                    value = weekInput,
-                    onValueChange = { weekInput = it },
-                    label = { Text("Week # (1-4)") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                CategoryDropdown(
-                    categories = allCategories,
-                    selectedCategory = selectedCategory,
-                    onCategorySelected = { selectedCategory = it }
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-
-                if (errorMessage != null) {
-                    Text(
-                        errorMessage!!,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-
-                // Add Expense Button
-                Button(
-                    onClick = {
-                        val amount = expenseInput.toDoubleOrNull()
-                        val week = weekInput.toIntOrNull()
-                        when {
-                            amount == null || amount <= 0 -> errorMessage =
-                                "Please enter a valid expense amount."
-                            descriptionInput.isBlank() -> errorMessage = "Description cannot be empty."
-                            week == null || week !in 1..4 -> errorMessage = "Please enter a valid week (1-4)."
-                            selectedCategory == null -> errorMessage = "Please select a category."
-                            else -> {
-                                budgetViewModel.addExpense(amount, descriptionInput, selectedCategory!!.categoryName, week)
-                                errorMessage = null
-                                expenseInput = ""
-                                descriptionInput = ""
-                                selectedCategory = null
-                            }
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Add Expense")
-                }
-                Spacer(modifier = Modifier.height(24.dp))
-                Text("All Expenses:", style = MaterialTheme.typography.titleMedium)
+        if (month == null || currentWeek == null) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
             }
-            if (allExpenses.isEmpty()) {
-                item {
-                    Text("No expenses yet.", modifier = Modifier.padding(top = 8.dp))
+            return
+        }
+
+        Text("Expense Tracker", style = MaterialTheme.typography.headlineMedium)
+        Spacer(modifier = Modifier.height(16.dp))
+        Text("Total Monthly Budget: $${"%.2f".format(month.totalBudget)}")
+        Text(
+            text = "Monthly Remaining: $${"%.2f".format(month.totalBudget - month.totalSpent)}",
+            color = if ((month.totalBudget - month.totalSpent) < 0) MaterialTheme.colorScheme.error else Color.Unspecified
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text("Week $currentWeekNumber Budget: $${"%.2f".format(currentWeek.weekBudget)}")
+        Text(
+            text = "Week $currentWeekNumber Remaining: $${"%.2f".format(currentWeek.weekBudget - currentWeek.weekSpent)}",
+            color = if ((currentWeek.weekBudget - currentWeek.weekSpent) < 0) MaterialTheme.colorScheme.error else Color.Unspecified
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+
+        TextField(
+            value = expenseInput,
+            onValueChange = { expenseInput = it },
+            label = { Text("Expense Amount") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        TextField(
+            value = descriptionInput,
+            onValueChange = { descriptionInput = it },
+            label = { Text("Description") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        CategoryDropdown(
+            categories = allCategories,
+            selectedCategory = selectedCategory,
+            onCategorySelected = { selectedCategory = it }
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        if (errorMessage != null) {
+            Text(errorMessage!!, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = {
+                val amount = expenseInput.toDoubleOrNull()
+                when {
+                    isAddingExpense -> {  }
+                    amount == null || amount <= 0 -> errorMessage = "Please enter a valid expense amount."
+                    descriptionInput.isBlank() -> errorMessage = "Description cannot be empty."
+                    selectedCategory == null -> errorMessage = "Please select a category."
+                    else -> {
+                        isAddingExpense = true
+                        budgetViewModel.addExpense(amount, descriptionInput, selectedCategory!!.categoryName)
+                        // Reset fields
+                        errorMessage = null
+                        expenseInput = ""
+                        descriptionInput = ""
+                        selectedCategory = null
+                        isAddingExpense = false
+                    }
                 }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            if (isAddingExpense) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
             } else {
-                items(allExpenses, key = { it.id }) { expense ->
-                    ExpenseItem(expense = expense, onRemoveClick = { budgetViewModel.removeExpense(expense) })
+                Text("Add Expense")
+            }
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // --- List of Expenses (The only part that needs to scroll) ---
+        Text("Expenses this Week:", style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(8.dp))
+        if (expensesForCurrentWeek.isEmpty()) {
+            Text("No expenses yet for week $currentWeekNumber.", modifier = Modifier.padding(top = 8.dp))
+        } else {
+            LazyColumn(modifier = Modifier.weight(1f)) {
+                items(expensesForCurrentWeek, key = { it.id }) { expense ->
+                    ExpenseItem(
+                        expense = expense,
+                        onRemoveClick = { budgetViewModel.removeExpense(expense) }
+                    )
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun ExpenseItem(expense: Expense, onRemoveClick: () -> Unit) {
@@ -176,7 +158,6 @@ fun ExpenseItem(expense: Expense, onRemoveClick: () -> Unit) {
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(expense.descriptionOfExpense, style = MaterialTheme.typography.bodyLarge)
-                Text("Week: ${expense.weekOfExpense}", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
                 Text("Category: ${expense.categoryOfExpense}", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
             }
             Text("-$${"%.2f".format(expense.amountOfExpense)}", color = MaterialTheme.colorScheme.error)
@@ -191,7 +172,8 @@ fun ExpenseItem(expense: Expense, onRemoveClick: () -> Unit) {
 @Composable
 fun CategoryDropdown(
     categories: List<Category>,
-    selectedCategory: Category?,onCategorySelected: (Category) -> Unit,
+    selectedCategory: Category?,
+    onCategorySelected: (Category) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var isExpanded by remember { mutableStateOf(false) }
@@ -203,16 +185,12 @@ fun CategoryDropdown(
     ) {
         TextField(
             value = selectedCategory?.categoryName ?: "Select a Category",
-            onValueChange = {}, // The value is read-only
+            onValueChange = {},
             readOnly = true,
             label = { Text("Category") },
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
-            },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded) },
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
-            modifier = Modifier
-                .menuAnchor() // This is important for positioning the dropdown
-                .fillMaxWidth()
+            modifier = Modifier.menuAnchor().fillMaxWidth()
         )
 
         ExposedDropdownMenu(
@@ -223,7 +201,7 @@ fun CategoryDropdown(
                 DropdownMenuItem(
                     text = { Text("No categories available. Add one on the Categories screen.") },
                     onClick = { isExpanded = false },
-                    enabled = false // Make it un-clickable
+                    enabled = false
                 )
             } else {
                 categories.forEach { category ->
@@ -239,4 +217,3 @@ fun CategoryDropdown(
         }
     }
 }
-

@@ -5,65 +5,49 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.Room
 import com.progprof.bargainmargintemplate.data.local.AppDatabase
-import com.progprof.bargainmargintemplate.data.local.entities.BudgetEntity
-import com.progprof.bargainmargintemplate.data.repository.BudgetRepository
 import com.progprof.bargainmargintemplate.data.local.entities.ExpenseEntity
+import com.progprof.bargainmargintemplate.data.local.entities.MonthEntity
+import com.progprof.bargainmargintemplate.data.local.entities.WeekEntity
+import com.progprof.bargainmargintemplate.data.local.relations.MonthWithWeeks
+import com.progprof.bargainmargintemplate.data.repository.BudgetRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 data class Expense(
-    val id: Int = 0,
-    val amountOfExpense : Double,
-    val descriptionOfExpense : String = "",
-    val categoryOfExpense : String = "",
-    val weekOfExpense : Int
+    val id: Long = 0,
+    val weekId: Long,
+    val amountOfExpense: Double,
+    val descriptionOfExpense: String = "",
+    val categoryOfExpense: String = ""
 )
-
 data class Category(
     val id: Int = 0,
-    val categoryName : String = "",
-    val totalBudget : Double,
-    val budgetRemaining : Double
+    val categoryName: String = "",
+    val totalBudget: Double,
+    val budgetRemaining: Double
 )
-
+data class BudgetUiState(
+    val monthWithWeeks: MonthWithWeeks? = null,
+    val expensesForCurrentWeek: List<Expense> = emptyList(),
+    val currentWeekNumber: Int = 1
+)
 class BudgetViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val appContext = getApplication<Application>().applicationContext
 
     private val db by lazy {
         Room.databaseBuilder(
             application.applicationContext,
             AppDatabase::class.java,
             "budget_tracker_db"
-        ).fallbackToDestructiveMigration().build()
+        )
+            .fallbackToDestructiveMigration()
+            .build()
     }
 
-    private val repository by lazy {
-        BudgetRepository(db)
-    }
-
-    private val _recentExpenses = MutableStateFlow<List<ExpenseEntity>>(emptyList())
-    val recentExpenses: StateFlow<List<ExpenseEntity>> = _recentExpenses
-
-
-    private val _budgetState = MutableStateFlow(BudgetEntity())
-    val budgetState: StateFlow<BudgetEntity> = _budgetState.asStateFlow()
-
-    val expenses: StateFlow<List<Expense>> = repository.allExpenses
-        .map { entityList ->
-            entityList.map { entity ->
-                Expense(
-                    id = entity.id,
-                    amountOfExpense = entity.amountOfExpense,
-                    descriptionOfExpense = entity.descriptionOfExpense,
-                    categoryOfExpense = entity.categoryOfExpense,
-                    weekOfExpense = entity.weekOfExpense
-                )
-            }
-        }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
+    private val repository by lazy { BudgetRepository(db) }
+    private val _uiState = MutableStateFlow(BudgetUiState())
+    val uiState: StateFlow<BudgetUiState> = _uiState.asStateFlow()
     val categories: StateFlow<List<Category>> = repository.allCategories
         .map { entityList ->
             entityList.map { entity ->
@@ -78,163 +62,91 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     init {
+
+        val calendar = Calendar.getInstance()
+        val currentYear = calendar.get(Calendar.YEAR)
+        val currentMonth = calendar.get(Calendar.MONTH)
+
         viewModelScope.launch(Dispatchers.IO) {
-            repository.initializeIfEmpty()
-            repository.budget
-                .filterNotNull()
-                .collect { budgetEntity ->
-                    _budgetState.value = budgetEntity
+            repository.getCurrentMonthData(currentYear, currentMonth)
+                .distinctUntilChanged()
+                .collect { monthWithWeeks ->
+                    _uiState.update { it.copy(monthWithWeeks = monthWithWeeks) }
+
+                    val currentWeekNumber = _uiState.value.currentWeekNumber
+                    val currentWeek = monthWithWeeks?.weeks?.find { it.weekNumber == currentWeekNumber }
+
+                    if (currentWeek != null) {
+                        fetchExpensesForWeek(currentWeek.id)
+                    } else {
+                        _uiState.update { it.copy(expensesForCurrentWeek = emptyList()) }
+                    }
                 }
         }
+    }
 
-            // Separate coroutine for recent expenses collection
-            viewModelScope.launch {
-                repository.getRecentExpenses(5).collect { expenses ->
-                    _recentExpenses.value = expenses
+    private fun fetchExpensesForWeek(weekId: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.getExpensesForWeek(weekId).collect { expenseEntities ->
+                val expenses = expenseEntities.map {
+                    Expense(
+                        id = it.id,
+                        weekId = it.weekId,
+                        amountOfExpense = it.amountOfExpense,
+                        descriptionOfExpense = it.descriptionOfExpense,
+                        categoryOfExpense = it.categoryOfExpense
+                    )
                 }
+                _uiState.update { it.copy(expensesForCurrentWeek = expenses) }
             }
-        }
-    fun onTotalBudgetChanged(newBudgetString: String) {
-        val newTotal = newBudgetString.toDoubleOrNull() ?: 0.0
-        if (newTotal <= 0) return
-
-        viewModelScope.launch {
-            val weeklyAmount = newTotal / 4
-            val updatedBudget = BudgetEntity(
-                id = 0,
-                totalBudget = newTotal,
-                monthlyRemainingBudget = newTotal,
-                totalRemainingBudget = newTotal,
-                week1TotalBudget = weeklyAmount,
-                week1RemainingBudget = weeklyAmount,
-                week2TotalBudget = weeklyAmount,
-                week2RemainingBudget = weeklyAmount,
-                week3TotalBudget = weeklyAmount,
-                week3RemainingBudget = weeklyAmount,
-                week4TotalBudget = weeklyAmount,
-                week4RemainingBudget = weeklyAmount,
-                myCurrentWeek = 1
-            )
-            repository.updateBudget(updatedBudget)
-        }
-    }
-
-    fun addExpense(amount: Double, description: String, category: String, week: Int) {
-        if (amount <= 0) return
-        viewModelScope.launch {
-            val newExpenseEntity = ExpenseEntity(
-                amountOfExpense = amount,
-                descriptionOfExpense = description,
-                categoryOfExpense = category,
-                weekOfExpense = week
-            )
-            repository.insertExpense(newExpenseEntity)
-
-            val currentBudget = _budgetState.value
-            val updatedBudget = currentBudget.copy(
-                monthlyRemainingBudget = currentBudget.monthlyRemainingBudget - amount,
-                week1RemainingBudget = if (week == 1) currentBudget.week1RemainingBudget - amount else currentBudget.week1RemainingBudget,
-                week2RemainingBudget = if (week == 2) currentBudget.week2RemainingBudget - amount else currentBudget.week2RemainingBudget,
-                week3RemainingBudget = if (week == 3) currentBudget.week3RemainingBudget - amount else currentBudget.week3RemainingBudget,
-                week4RemainingBudget = if (week == 4) currentBudget.week4RemainingBudget - amount else currentBudget.week4RemainingBudget
-            )
-            repository.updateBudget(updatedBudget)
-            checkAndNotifyBudget(updatedBudget, week)
-        }
-    }
-
-    private fun checkAndNotifyBudget(budget: BudgetEntity, week: Int) {
-
-        val monthlyPercentRemaining = budget.monthlyRemainingBudget / budget.totalBudget
-
-        if (monthlyPercentRemaining <= 0.25) {
-            BudgetNotificationManager.sendNotification(
-                appContext,
-                "Monthly Budget Alert",
-                "You've used 75% of your monthly budget."
-            )
-        }
-
-        val weeklyRemaining = when (week) {
-            1 -> budget.week1RemainingBudget
-            2 -> budget.week2RemainingBudget
-            3 -> budget.week3RemainingBudget
-            else -> budget.week4RemainingBudget
-        }
-
-        val weeklyTotal = when (week) {
-            1 -> budget.week1TotalBudget
-            2 -> budget.week2TotalBudget
-            3 -> budget.week3TotalBudget
-            else -> budget.week4TotalBudget
-        }
-
-        val weeklyPercentRemaining = weeklyRemaining / weeklyTotal
-
-        if (weeklyPercentRemaining <= 0.25) {
-            BudgetNotificationManager.sendNotification(
-                appContext,
-                "Weekly Budget Alert",
-                "You've used 75% of your Week $week budget."
-            )
-        }
-    }
-
-    fun removeExpense(expense: Expense) {
-        viewModelScope.launch {
-            val expenseEntityToDelete = ExpenseEntity(
-                id = expense.id,
-                amountOfExpense = expense.amountOfExpense,
-                descriptionOfExpense = expense.descriptionOfExpense,
-                categoryOfExpense = expense.categoryOfExpense,
-                weekOfExpense = expense.weekOfExpense
-            )
-            repository.deleteExpense(expenseEntityToDelete)
-
-            val currentBudget = _budgetState.value
-            val amount = expense.amountOfExpense
-            val updatedBudget = currentBudget.copy(
-                monthlyRemainingBudget = currentBudget.monthlyRemainingBudget + amount,
-                week1RemainingBudget = if (expense.weekOfExpense == 1) currentBudget.week1RemainingBudget + amount else currentBudget.week1RemainingBudget,
-                week2RemainingBudget = if (expense.weekOfExpense == 2) currentBudget.week2RemainingBudget + amount else currentBudget.week2RemainingBudget,
-                week3RemainingBudget = if (expense.weekOfExpense == 3) currentBudget.week3RemainingBudget + amount else currentBudget.week3RemainingBudget,
-                week4RemainingBudget = if (expense.weekOfExpense == 4) currentBudget.week4RemainingBudget + amount else currentBudget.week4RemainingBudget
-            )
-            repository.updateBudget(updatedBudget)
         }
     }
 
     fun changeCurrentWeek(weekNum: Int) {
         if (weekNum !in 1..4) return
-        viewModelScope.launch {
-            val currentBudget = _budgetState.value
-            if (currentBudget.myCurrentWeek != weekNum) {
-                repository.updateBudget(currentBudget.copy(myCurrentWeek = weekNum))
-            }
+        _uiState.update { it.copy(currentWeekNumber = weekNum) }
+
+        // After changing the week number, we need to fetch the expenses for that new week.
+        val currentWeek = _uiState.value.monthWithWeeks?.weeks?.find { it.weekNumber == weekNum }
+        if (currentWeek != null) {
+            fetchExpensesForWeek(currentWeek.id)
+        } else {
+            _uiState.update { it.copy(expensesForCurrentWeek = emptyList()) }
         }
     }
 
-    fun alterWeeklyBudgets(week1: Double, week2: Double, week3: Double, week4: Double) {
-        viewModelScope.launch {
-            val currentBudget = _budgetState.value
-            val newTotalBudget = week1 + week2 + week3 + week4
+    fun createNewMonthBudget(totalBudget: Double) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val calendar = Calendar.getInstance()
+            val year = calendar.get(Calendar.YEAR)
+            val month = calendar.get(Calendar.MONTH)
+            val weeklyAmount = totalBudget / 4
 
-            val updatedBudget = currentBudget.copy(
-                totalBudget = newTotalBudget,
-                monthlyRemainingBudget = newTotalBudget,
-                totalRemainingBudget = newTotalBudget,
-                week1TotalBudget = week1,
-                week1RemainingBudget = week1,
-                week2TotalBudget = week2,
-                week2RemainingBudget = week2,
-                week3TotalBudget = week3,
-                week3RemainingBudget = week3,
-                week4TotalBudget = week4,
-                week4RemainingBudget = week4
+            val newMonth = MonthEntity(year = year, month = month, totalBudget = totalBudget)
+            val weeklyBudgets = listOf(weeklyAmount, weeklyAmount, weeklyAmount, weeklyAmount)
+
+            repository.createNewMonthWithWeeks(newMonth, weeklyBudgets)
+        }
+    }
+
+    fun addExpense(amount: Double, description: String, category: String) {
+        val currentState = _uiState.value
+        val month = currentState.monthWithWeeks?.month
+        val week = currentState.monthWithWeeks?.weeks?.find { it.weekNumber == currentState.currentWeekNumber }
+
+        if (amount <= 0 || month == null || week == null) return
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val newExpenseEntity = ExpenseEntity(
+                weekId = week.id,
+                amountOfExpense = amount,
+                descriptionOfExpense = description,
+                categoryOfExpense = category
             )
-            repository.updateBudget(updatedBudget)
+            repository.insertExpenseAndUpdateTotals(newExpenseEntity, month, week)
         }
     }
+
 
     fun addCategory(categoryName: String, totalBudget: Double) {
         viewModelScope.launch {
@@ -258,6 +170,7 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
             repository.deleteCategory(categoryEntity)
         }
     }
+
     fun updateCategory(oldCategory: Category, newCategory: Category) {
         viewModelScope.launch {
             val categoryEntity = com.progprof.bargainmargintemplate.data.local.entities.CategoryEntity(
@@ -269,4 +182,37 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
             repository.updateCategory(categoryEntity)
         }
     }
+
+    fun removeExpense(expense: Expense) {
+        val currentState = _uiState.value
+        val month = currentState.monthWithWeeks?.month
+        val week = currentState.monthWithWeeks?.weeks?.find { it.id == expense.weekId }
+
+        if (month == null || week == null) return
+
+        viewModelScope.launch(Dispatchers.IO) {
+            // Map the UI Expense object back to an ExpenseEntity to delete
+            val expenseEntityToDelete = ExpenseEntity(
+                id = expense.id,
+                weekId = expense.weekId,
+                amountOfExpense = expense.amountOfExpense,
+                descriptionOfExpense = expense.descriptionOfExpense,
+                categoryOfExpense = expense.categoryOfExpense
+            )
+            repository.deleteExpenseAndUpdateTotals(expenseEntityToDelete, month, week)
+        }
+    }
+
+    fun alterWeeklyBudgets(week1: Double, week2: Double, week3: Double, week4: Double) {
+        val currentState = _uiState.value
+        val month = currentState.monthWithWeeks?.month
+        val weeks = currentState.monthWithWeeks?.weeks
+        if (month == null || weeks.isNullOrEmpty() || weeks.size != 4) return
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val newWeeklyBudgets = listOf(week1, week2, week3, week4)
+            repository.alterWeeklyBudgets(month, weeks, newWeeklyBudgets)
+        }
+    }
+
 }

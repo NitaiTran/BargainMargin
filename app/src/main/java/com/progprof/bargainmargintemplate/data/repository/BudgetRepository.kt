@@ -1,47 +1,81 @@
 package com.progprof.bargainmargintemplate.data.repository
 
 import com.progprof.bargainmargintemplate.data.local.AppDatabase
-import com.progprof.bargainmargintemplate.data.local.entities.BudgetEntity
 import com.progprof.bargainmargintemplate.data.local.entities.CategoryEntity
 import com.progprof.bargainmargintemplate.data.local.entities.ExpenseEntity
-import kotlinx.coroutines.flow.firstOrNull
+import com.progprof.bargainmargintemplate.data.local.entities.MonthEntity
+import com.progprof.bargainmargintemplate.data.local.entities.WeekEntity
+import com.progprof.bargainmargintemplate.data.local.relations.MonthWithWeeks
+import kotlinx.coroutines.flow.Flow
+import java.util.Calendar
 
 class BudgetRepository(private val db: AppDatabase) {
 
-    val allExpenses = db.expenseDao().getAllExpenses()
-    val allCategories = db.categoryDao().getAllCategories()
-    val budget = db.budgetDao().getBudget()
-    private val expenseDao = db.expenseDao()
-    fun getRecentExpenses(limit: Int) = expenseDao.getRecentExpenses(limit)
+    private val budgetDao = db.budgetDao()
+    private val categoryDao = db.categoryDao()
 
-    suspend fun initializeIfEmpty() {
-        val current = db.budgetDao().getBudget().firstOrNull()
-        if (current == null) {
-            db.budgetDao().upsertBudget(BudgetEntity())
+    fun getCurrentMonthData(year: Int, month: Int): Flow<MonthWithWeeks?> {
+        return budgetDao.getMonthWithWeeks(year, month)
+    }
+
+    val allCategories: Flow<List<CategoryEntity>> = categoryDao.getAllCategories()
+
+    fun getExpensesForWeek(weekId: Long): Flow<List<ExpenseEntity>> {
+        return budgetDao.getExpensesForWeek(weekId)
+    }
+
+    suspend fun createNewMonthWithWeeks(monthEntity: MonthEntity, weeklyBudgets: List<Double>) {
+        val monthId = budgetDao.insertMonth(monthEntity)
+
+        val weekEntities = weeklyBudgets.mapIndexed { index, budget ->
+            WeekEntity(
+                monthId = monthId,
+                weekNumber = index + 1,
+                weekBudget = budget,
+                weekSpent = 0.0
+            )
         }
+        budgetDao.insertWeeks(weekEntities)
     }
 
-    suspend fun updateBudget(newBudget: BudgetEntity) {
-        db.budgetDao().upsertBudget(newBudget)
+    suspend fun deleteExpenseAndUpdateTotals(expense: ExpenseEntity, month: MonthEntity, week: WeekEntity) {
+        budgetDao.deleteExpense(expense)
+
+        val updatedWeek = week.copy(weekSpent = week.weekSpent - expense.amountOfExpense)
+        budgetDao.insertWeeks(listOf(updatedWeek))
+
+        // Subtract the spent amount from the month
+        val updatedMonth = month.copy(totalSpent = month.totalSpent - expense.amountOfExpense)
+        budgetDao.insertMonth(updatedMonth)
     }
 
-    suspend fun insertExpense(expenseEntity: ExpenseEntity) {
-        db.expenseDao().insertExpense(expenseEntity)
+    suspend fun alterWeeklyBudgets(month: MonthEntity, currentWeeks: List<WeekEntity>, newWeeklyBudgets: List<Double>) {
+        val newTotalBudget = newWeeklyBudgets.sum()
+        val updatedMonth = month.copy(totalBudget = newTotalBudget)
+        budgetDao.insertMonth(updatedMonth)
+
+        val updatedWeeks = currentWeeks.mapIndexed { index, week ->
+            week.copy(weekBudget = newWeeklyBudgets[index])
+        }
+        budgetDao.insertWeeks(updatedWeeks)
     }
 
-    suspend fun deleteExpense(expenseEntity: ExpenseEntity) {
-        db.expenseDao().deleteExpense(expenseEntity)
+    suspend fun insertExpenseAndUpdateTotals(expense: ExpenseEntity, month: MonthEntity, week: WeekEntity) {
+        budgetDao.insertExpense(expense)
+        val updatedWeek = week.copy(weekSpent = week.weekSpent + expense.amountOfExpense)
+        budgetDao.insertWeeks(listOf(updatedWeek))
+        val updatedMonth = month.copy(totalSpent = month.totalSpent + expense.amountOfExpense)
+        budgetDao.insertMonth(updatedMonth)
     }
-
     suspend fun insertCategory(categoryEntity: CategoryEntity) {
-        db.categoryDao().insertCategory(categoryEntity)
+        categoryDao.insertCategory(categoryEntity)
     }
 
     suspend fun deleteCategory(categoryEntity: CategoryEntity) {
-        db.categoryDao().deleteCategory(categoryEntity)
+        categoryDao.deleteCategory(categoryEntity)
     }
 
     suspend fun updateCategory(categoryEntity: CategoryEntity) {
-        db.categoryDao().updateCategory(categoryEntity)
+        categoryDao.updateCategory(categoryEntity)
     }
 }

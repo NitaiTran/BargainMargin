@@ -3,12 +3,12 @@ package com.progprof.bargainmargintemplate.data.local.entities
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "monthlyData")
+@Entity(tableName = "months")
 data class MonthEntity(
-    @PrimaryKey val id: Int = 0,
-    val myBudgetEntity: BudgetEntity,
-    val myCategoryEntity: CategoryEntity,
-    val myExpenseEntity: ExpenseEntity,
-    val myWeekEntityList: ArrayList<WeekEntity>
-
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
+    val year: Int,
+    val month: Int,
+    val totalBudget: Double,
+    val totalSpent: Double = 0.0
 )
