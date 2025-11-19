@@ -7,6 +7,8 @@ import androidx.room.RoomDatabase
 import com.progprof.bargainmargintemplate.data.local.dao.BudgetDao
 import com.progprof.bargainmargintemplate.data.local.dao.CategoryDao
 import com.progprof.bargainmargintemplate.data.local.dao.ExpenseDao
+import com.progprof.bargainmargintemplate.data.local.dao.MonthDao
+import com.progprof.bargainmargintemplate.data.local.dao.WeekDao
 
 @Database(
     entities = [ExpenseEntity::class, BudgetEntity::class, CategoryEntity::class],
@@ -16,4 +18,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun expenseDao(): ExpenseDao
     abstract fun budgetDao(): BudgetDao
     abstract fun categoryDao(): CategoryDao
+    abstract fun monthDao(): MonthDao
+    abstract fun weekDao(): WeekDao
 }

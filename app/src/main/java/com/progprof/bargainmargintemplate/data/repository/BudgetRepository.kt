@@ -11,7 +11,6 @@ class BudgetRepository(private val db: AppDatabase) {
     val allExpenses = db.expenseDao().getAllExpenses()
     val allCategories = db.categoryDao().getAllCategories()
     val budget = db.budgetDao().getBudget()
-
     private val expenseDao = db.expenseDao()
     fun getRecentExpenses(limit: Int) = expenseDao.getRecentExpenses(limit)
 
