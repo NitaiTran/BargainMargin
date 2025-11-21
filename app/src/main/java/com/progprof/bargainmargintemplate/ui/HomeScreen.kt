@@ -23,42 +23,42 @@ fun HomeScreen(
     budgetViewModel: BudgetViewModel,
     navController: NavController
 ) {
-    val budget by budgetViewModel.budgetState.collectAsState()
-    val recentExpenses by budgetViewModel.recentExpenses.collectAsState()
+    val uiState by budgetViewModel.uiState.collectAsState()
+    val selectedMonthWithWeeks = uiState.selectedMonthWithWeeks
+    val currentWeekNumber = uiState.currentWeekNumber
+    val expensesForCurrentWeek = uiState.expensesForCurrentWeek
 
-
-    if (budget.totalBudget <= 0.0) {
-        LaunchedEffect(budget.totalBudget) {
-            if (budget.totalBudget <= 0.0) {
-                navController.navigate(ScreenController.Screen.MainBudgetEntry.name) {
-                    popUpTo(ScreenController.Screen.Home.name) { inclusive = true }
-                }
-            }
-        }
+    if (selectedMonthWithWeeks == null || selectedMonthWithWeeks.weeks.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("No budget set for this month.")
+                Text("Select 'Edit Monthly Budget' from the menu to begin.")
+            }
         }
         return
     }
-    val monthlyBudget = budget.monthlyRemainingBudget
-    val totalBudget = budget.totalBudget
-    val currentWeek = budget.myCurrentWeek
-    val weeklyRemainingBudget = when (currentWeek) {
-        1 -> budget.week1RemainingBudget
-        2 -> budget.week2RemainingBudget
-        3 -> budget.week3RemainingBudget
-        4 -> budget.week4RemainingBudget
-        else -> 0.0
+
+    val month = selectedMonthWithWeeks.month
+    val weeks = selectedMonthWithWeeks.weeks
+    val currentWeek = weeks.find { it.weekNumber == currentWeekNumber }
+
+    if (currentWeek == null) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+            Text("Loading week data...", modifier = Modifier.padding(top = 60.dp))
+        }
+        return
     }
-    val weeklyTotalBudget = when (currentWeek) {
-        1 -> budget.week1TotalBudget
-        2 -> budget.week2TotalBudget
-        3 -> budget.week3TotalBudget
-        4 -> budget.week4TotalBudget
-        else -> 0.0
-    }
-    val monthlyProgress = if (totalBudget > 0) (monthlyBudget / totalBudget).toFloat() else 0f
-    val weeklyProgress = if (weeklyTotalBudget > 0) (weeklyRemainingBudget / weeklyTotalBudget).toFloat() else 0f
+
+    val totalMonthlyBudget = month.totalBudget
+    val spentMonthly = month.totalSpent
+    val monthRemaining = totalMonthlyBudget - spentMonthly
+    val monthlyProgress = if (totalMonthlyBudget > 0) (monthRemaining / totalMonthlyBudget).toFloat() else 0f
+
+    val totalWeeklyBudget = currentWeek.weekBudget
+    val spentWeekly = currentWeek.weekSpent
+    val weekRemaining = totalWeeklyBudget - spentWeekly
+    val weeklyProgress = if (totalWeeklyBudget > 0) (weekRemaining / totalWeeklyBudget).toFloat() else 0f
 
     Column(
         modifier = Modifier
@@ -71,47 +71,47 @@ fun HomeScreen(
         Spacer(modifier = Modifier.height(16.dp))
         Text(text = "Monthly Budget Remaining: ", style = MaterialTheme.typography.titleMedium)
         Text(
-            text = "$${"%.2f".format(monthlyBudget)} / $${"%.2f".format(totalBudget)}",
+            text = "$${"%.2f".format(monthRemaining)} / $${"%.2f".format(totalMonthlyBudget)}",
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 10.dp)
         )
         LinearProgressIndicator(
-            progress = { monthlyProgress },
+            progress = { monthlyProgress.coerceIn(0f, 1f) },
             modifier = Modifier
                 .height(26.dp)
                 .fillMaxWidth()
                 .padding(bottom = 10.dp)
         )
-        Text(text = "Week $currentWeek Budget Remaining: ", style = MaterialTheme.typography.titleMedium)
+
+        Text(text = "Week $currentWeekNumber Budget Remaining: ", style = MaterialTheme.typography.titleMedium)
         Text(
-            text = "$%.2f".format(weeklyRemainingBudget) + "/%.2f".format(weeklyTotalBudget),
+            text = "$${"%.2f".format(weekRemaining)} / $${"%.2f".format(totalWeeklyBudget)}",
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 10.dp)
         )
         LinearProgressIndicator(
-            progress = { weeklyProgress },
+            progress = { weeklyProgress.coerceIn(0f, 1f) },
             modifier = Modifier
                 .height(26.dp)
                 .fillMaxWidth()
                 .padding(bottom = 10.dp),
-            color = MaterialTheme.colorScheme.primary
         )
         Spacer(modifier = Modifier.height(24.dp))
 
-        Text("Recent Expenses", style = MaterialTheme.typography.headlineSmall)
+        Text("Expenses This Week", style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(8.dp))
 
-        if (recentExpenses.isEmpty()) {
-            Text("No recent expenses", style = MaterialTheme.typography.bodyMedium)
+        if (expensesForCurrentWeek.isEmpty()) {
+            Text("No expenses this week", style = MaterialTheme.typography.bodyMedium)
         } else {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(max = 200.dp)
             ) {
-                items(recentExpenses) { expense ->
+                items(expensesForCurrentWeek, key = { it.id }) { expense ->
                     Text(
                         text = "${expense.descriptionOfExpense}: $${"%.2f".format(expense.amountOfExpense)} (${expense.categoryOfExpense})",
                         style = MaterialTheme.typography.bodyLarge,
