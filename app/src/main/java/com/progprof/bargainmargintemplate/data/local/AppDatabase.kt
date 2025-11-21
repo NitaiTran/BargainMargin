@@ -16,7 +16,7 @@ import com.progprof.bargainmargintemplate.data.local.entities.WeekEntity
         ExpenseEntity::class,
         CategoryEntity::class
     ],
-    version = 3,
+    version = 5,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

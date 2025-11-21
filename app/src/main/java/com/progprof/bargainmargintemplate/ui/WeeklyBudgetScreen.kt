@@ -32,24 +32,39 @@ fun WeeklyBudgetScreen(
     budgetViewModel: BudgetViewModel,
 ) {
     val uiState by budgetViewModel.uiState.collectAsState()
-    val monthWithWeeks = uiState.monthWithWeeks
+    val selectedMonthWithWeeks = uiState.selectedMonthWithWeeks
     var week1Input by remember { mutableStateOf("") }
     var week2Input by remember { mutableStateOf("") }
     var week3Input by remember { mutableStateOf("") }
     var week4Input by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(monthWithWeeks) {
-        monthWithWeeks?.weeks?.let { weeks ->
-            if (weeks.size == 4) {
-                weeks.find { it.weekNumber == 1 }?.let { week1Input = it.weekBudget.toBigDecimal().toPlainString() }
-                weeks.find { it.weekNumber == 2 }?.let { week2Input = it.weekBudget.toBigDecimal().toPlainString() }
-                weeks.find { it.weekNumber == 3 }?.let { week3Input = it.weekBudget.toBigDecimal().toPlainString() }
-                weeks.find { it.weekNumber == 4 }?.let { week4Input = it.weekBudget.toBigDecimal().toPlainString() }
+    // *** THE DEFINITIVE FIX: Key the effect to the budget value itself ***
+    // This ensures that when the totalBudget changes from 0.0 to a new value,
+    // this block re-runs and correctly recalculates the default weekly amounts.
+    LaunchedEffect(selectedMonthWithWeeks?.month?.totalBudget) {
+        val month = selectedMonthWithWeeks?.month
+        if (month != null) {
+            val weeks = selectedMonthWithWeeks.weeks
+            // This condition correctly handles both creating and editing.
+            if (weeks.isNotEmpty() && weeks.size == 4) {
+                // If weeks with budgets already exist, use their values.
+                week1Input = weeks[0].weekBudget.toBigDecimal().toPlainString()
+                week2Input = weeks[1].weekBudget.toBigDecimal().toPlainString()
+                week3Input = weeks[2].weekBudget.toBigDecimal().toPlainString()
+                week4Input = weeks[3].weekBudget.toBigDecimal().toPlainString()
+            } else if (month.totalBudget > 0) {
+                // If weeks DON'T exist, but there IS a total budget, calculate the defaults.
+                val weeklyAmount = (month.totalBudget / 4).toBigDecimal().toPlainString()
+                week1Input = weeklyAmount
+                week2Input = weeklyAmount
+                week3Input = weeklyAmount
+                week4Input = weeklyAmount
             }
         }
     }
-    if (monthWithWeeks == null) {
+
+    if (selectedMonthWithWeeks == null) {
         Column(modifier = Modifier.padding(16.dp)) {
             CircularProgressIndicator()
             Text("Loading monthly budget...")
@@ -62,7 +77,7 @@ fun WeeklyBudgetScreen(
             .verticalScroll(rememberScrollState())
     ) {
         Text("Edit Weekly Budgets", style = MaterialTheme.typography.headlineMedium)
-        Text("Current Total Budget: $${String.format("%.2f", monthWithWeeks.month.totalBudget)}")
+        Text("Current Total Budget: $${String.format("%.2f", selectedMonthWithWeeks.month.totalBudget)}")
 
         Spacer(modifier = Modifier.height(16.dp))
 

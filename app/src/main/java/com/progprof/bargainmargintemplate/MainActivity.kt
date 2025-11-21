@@ -12,8 +12,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.progprof.bargainmargintemplate.ui.* //imports everything from the ui package
 import com.progprof.bargainmargintemplate.ui.theme.AppTheme
-import androidx.room.Room
-import com.progprof.bargainmargintemplate.ui.BudgetNotificationManager
+// import androidx.room.Room  // <<< DELETE THIS LINE
+// import com.progprof.bargainmargintemplate.ui.BudgetNotificationManager // Already imported by wildcard
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.result.contract.ActivityResultContracts
@@ -31,9 +31,13 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+    // *** START DELETION ***
+    /*
     companion object {
         lateinit var database: AppDatabase
     }
+    */
+    // *** END DELETION ***
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,11 +45,16 @@ class MainActivity : ComponentActivity() {
         BudgetNotificationManager.createNotificationChannel(this)
         requestNotificationPermissionIfNeeded()
 
+        // *** START DELETION ***
+        /*
         database = Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java,
             "budget_tracker_db"
         ).build()
+        */
+        // *** END DELETION ***
+
 
         setContent {
             AppTheme(dynamicColor = false) {

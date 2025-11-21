@@ -23,15 +23,16 @@ fun BudgetScreen(
     onNextButtonClicked: () -> Unit
 ) {
     val uiState by budgetViewModel.uiState.collectAsState()
-    val month = uiState.monthWithWeeks?.month
+    val month = uiState.selectedMonthWithWeeks?.month
 
     var textInput by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(month) {
         if (month != null && month.totalBudget > 0) {
-            // Use a clean format to avoid scientific notation like "1.0E-4"
             textInput = month.totalBudget.toBigDecimal().toPlainString()
+        } else {
+            textInput = ""
         }
     }
 
@@ -45,7 +46,7 @@ fun BudgetScreen(
             textInput = textInput,
             onValueChange = {
                 textInput = it
-                errorMessage = null // Clear error message on new input
+                errorMessage = null
             },
             modifier = Modifier
                 .padding(bottom = 16.dp)
@@ -66,8 +67,10 @@ fun BudgetScreen(
                 if (newTotal == null || newTotal <= 0) {
                     errorMessage = "Please enter a valid, positive budget amount."
                 } else {
-                    budgetViewModel.createNewMonthBudget(newTotal)
-                    onNextButtonClicked()
+
+                    budgetViewModel.createNewMonthBudget(newTotal) {
+                        onNextButtonClicked()
+                    }
                 }
             },
             modifier = Modifier

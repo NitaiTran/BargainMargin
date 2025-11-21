@@ -24,42 +24,41 @@ fun HomeScreen(
     navController: NavController
 ) {
     val uiState by budgetViewModel.uiState.collectAsState()
-    val monthWithWeeks = uiState.monthWithWeeks
+    val selectedMonthWithWeeks = uiState.selectedMonthWithWeeks
     val currentWeekNumber = uiState.currentWeekNumber
     val expensesForCurrentWeek = uiState.expensesForCurrentWeek
 
-    if (monthWithWeeks == null) {
-        LaunchedEffect(Unit) {
-            navController.navigate(ScreenController.Screen.MainBudgetEntry.name) {
-                popUpTo(ScreenController.Screen.Home.name) { inclusive = true }
-            }
-        }
+    if (selectedMonthWithWeeks == null || selectedMonthWithWeeks.weeks.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("No budget set for this month.")
+                Text("Select 'Edit Monthly Budget' from the menu to begin.")
+            }
         }
         return
     }
 
-    val month = monthWithWeeks.month
-    val weeks = monthWithWeeks.weeks
+    val month = selectedMonthWithWeeks.month
+    val weeks = selectedMonthWithWeeks.weeks
     val currentWeek = weeks.find { it.weekNumber == currentWeekNumber }
 
     if (currentWeek == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator()
+            Text("Loading week data...", modifier = Modifier.padding(top = 60.dp))
         }
         return
     }
 
     val totalMonthlyBudget = month.totalBudget
     val spentMonthly = month.totalSpent
-    val remainingMonthly = totalMonthlyBudget - spentMonthly
-    val monthlyProgress = if (totalMonthlyBudget > 0) (remainingMonthly / totalMonthlyBudget).toFloat() else 0f
+    val monthRemaining = totalMonthlyBudget - spentMonthly
+    val monthlyProgress = if (totalMonthlyBudget > 0) (monthRemaining / totalMonthlyBudget).toFloat() else 0f
 
     val totalWeeklyBudget = currentWeek.weekBudget
     val spentWeekly = currentWeek.weekSpent
-    val remainingWeekly = totalWeeklyBudget - spentWeekly
-    val weeklyProgress = if (totalWeeklyBudget > 0) (remainingWeekly / totalWeeklyBudget).toFloat() else 0f
+    val weekRemaining = totalWeeklyBudget - spentWeekly
+    val weeklyProgress = if (totalWeeklyBudget > 0) (weekRemaining / totalWeeklyBudget).toFloat() else 0f
 
     Column(
         modifier = Modifier
@@ -72,7 +71,7 @@ fun HomeScreen(
         Spacer(modifier = Modifier.height(16.dp))
         Text(text = "Monthly Budget Remaining: ", style = MaterialTheme.typography.titleMedium)
         Text(
-            text = "$${"%.2f".format(remainingMonthly)} / $${"%.2f".format(totalMonthlyBudget)}",
+            text = "$${"%.2f".format(monthRemaining)} / $${"%.2f".format(totalMonthlyBudget)}",
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 10.dp)
@@ -87,7 +86,7 @@ fun HomeScreen(
 
         Text(text = "Week $currentWeekNumber Budget Remaining: ", style = MaterialTheme.typography.titleMedium)
         Text(
-            text = "$${"%.2f".format(remainingWeekly)} / $${"%.2f".format(totalWeeklyBudget)}",
+            text = "$${"%.2f".format(weekRemaining)} / $${"%.2f".format(totalWeeklyBudget)}",
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 10.dp)
@@ -98,7 +97,6 @@ fun HomeScreen(
                 .height(26.dp)
                 .fillMaxWidth()
                 .padding(bottom = 10.dp),
-            color = MaterialTheme.colorScheme.primary
         )
         Spacer(modifier = Modifier.height(24.dp))
 

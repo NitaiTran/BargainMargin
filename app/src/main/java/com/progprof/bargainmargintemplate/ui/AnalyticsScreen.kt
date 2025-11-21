@@ -24,7 +24,7 @@ fun AnalyticsScreen(
     val uiState by budgetViewModel.uiState.collectAsState()
     val categoryList by budgetViewModel.categories.collectAsState()
 
-    val month = uiState.monthWithWeeks?.month
+    val month = uiState.selectedMonthWithWeeks?.month
 
     if (month == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -107,7 +107,6 @@ fun DrawPieChart(modifier: Modifier = Modifier, categoryList: List<Category>, to
                 }
             }
         }
-        // Display the total monthly budget in the center.
         Text(text = "$${"%.2f".format(totalMonthlyBudget)}", fontSize = 24.sp)
     }
 }
@@ -128,7 +127,6 @@ fun DrawAllPercentageBars(categoryList: List<Category>, totalMonthlyBudget: Doub
     Column {
         categoryList.forEachIndexed { index, category ->
             val barColor = colorsArray[index % colorsArray.size]
-            // The percentage should be the category's budget relative to the total month's budget.
             val percentage = (category.totalBudget.toFloat() / totalBudgetFloat)
             DrawBudgetPercentBar(percentage, barColor, category.categoryName)
         }

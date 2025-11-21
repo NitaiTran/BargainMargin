@@ -1,9 +1,14 @@
 package com.progprof.bargainmargintemplate.data.local.entities
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "months")
+
+@Entity(
+    tableName = "months",
+    indices = [Index(value = ["year", "month"], unique = true)]
+)
 data class MonthEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
