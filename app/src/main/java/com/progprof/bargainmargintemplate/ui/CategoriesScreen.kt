@@ -17,21 +17,23 @@ import androidx.compose.ui.unit.sp
 fun CategoriesScreen(
     budgetViewModel: BudgetViewModel
 ) {
-    val budget by budgetViewModel.budgetState.collectAsState()
+
     val allCategories by budgetViewModel.categories.collectAsState()
     var editingCategory by remember { mutableStateOf<Category?>(null) }
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
 
-        DrawCategoryInput(onAddCategory = { name, budget, remaining ->
+        DrawCategoryInput(onAddCategory = { name, budget ->
             budgetViewModel.addCategory(name, budget)
         })
         Spacer(modifier = Modifier.height(16.dp))
 
-        LazyColumn {
+        LazyColumn(modifier = Modifier.fillMaxSize()) { // Added fillMaxSize here
             if (allCategories.isEmpty()) {
                 item {
                     Text("No categories yet.", modifier = Modifier.padding(top = 8.dp))
@@ -49,10 +51,10 @@ fun CategoriesScreen(
 
         if (editingCategory != null) {
             EditCategory(
-                editingCategory!!,
+                category = editingCategory!!,
                 onDismiss = { editingCategory = null },
-                onSave = { updated ->
-                    budgetViewModel.updateCategory(editingCategory!!, updated)
+                onSave = { updatedCategory ->
+                    budgetViewModel.updateCategory(editingCategory!!, updatedCategory)
                     editingCategory = null
                 }
             )
@@ -61,7 +63,7 @@ fun CategoriesScreen(
 }
 
 @Composable
-fun DrawCategoryInput(onAddCategory: (String, Double, Double) -> Unit) {
+fun DrawCategoryInput(onAddCategory: (String, Double) -> Unit) {
     var categoryName by remember { mutableStateOf("") }
     var categoryBudget by remember { mutableStateOf("") }
     var nameErrorMessage by remember { mutableStateOf<String?>(null) }
@@ -72,7 +74,7 @@ fun DrawCategoryInput(onAddCategory: (String, Double, Double) -> Unit) {
         value = categoryName,
         onValueChange = {
             categoryName = it
-            budgetErrorMessage = null
+            nameErrorMessage = null
         },
         label = { Text("Enter category name") },
         isError = nameErrorMessage != null
@@ -96,7 +98,7 @@ fun DrawCategoryInput(onAddCategory: (String, Double, Double) -> Unit) {
     if (nameErrorMessage != null) {
         Text(
             text = nameErrorMessage!!,
-            color = Color.Red,
+            color = MaterialTheme.colorScheme.error,
             style = MaterialTheme.typography.bodySmall
         )
     }
@@ -104,7 +106,7 @@ fun DrawCategoryInput(onAddCategory: (String, Double, Double) -> Unit) {
     if (budgetErrorMessage != null) {
         Text(
             text = budgetErrorMessage!!,
-            color = Color.Red,
+            color = MaterialTheme.colorScheme.error,
             style = MaterialTheme.typography.bodySmall
         )
     }
@@ -112,12 +114,19 @@ fun DrawCategoryInput(onAddCategory: (String, Double, Double) -> Unit) {
     Button(
         modifier = Modifier.fillMaxWidth(),
         onClick = {
-            if (categoryName.isBlank()) {
+            val parsedBudget = categoryBudget.toDoubleOrNull()
+            val isNameInvalid = categoryName.isBlank()
+            val isBudgetInvalid = parsedBudget == null || parsedBudget <= 0
+
+            if (isNameInvalid) {
                 nameErrorMessage = "Category name cannot be empty"
-            } else if (categoryBudget.toDoubleOrNull() == null || categoryBudget.toDoubleOrNull()!! <= 0) {
-                budgetErrorMessage = "Budget amount must be a valid number"
-            } else {
-                onAddCategory(categoryName, categoryBudget.toDouble(), categoryBudget.toDouble())
+            }
+            if (isBudgetInvalid) {
+                budgetErrorMessage = "Budget must be a valid, positive number"
+            }
+
+            if (!isNameInvalid && !isBudgetInvalid) {
+                onAddCategory(categoryName, parsedBudget!!)
                 nameErrorMessage = null
                 budgetErrorMessage = null
                 categoryName = ""
@@ -147,18 +156,22 @@ fun DrawCategoryCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
-                Text(category.categoryName, style = MaterialTheme.typography.bodyLarge)
-                Text(text = category.totalBudget.toString(), style = MaterialTheme.typography.bodyLarge)
+            Column(modifier = Modifier.weight(1f)) {
+                Text(category.categoryName, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    text = "Budget: $${"%.2f".format(category.totalBudget)}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
+                )
             }
 
-            Column {
+            Row { // Use a Row for the buttons
                 TextButton(onClick = { onEditCategory(category) }) {
                     Text("Edit")
                 }
 
                 TextButton(onClick = { onRemoveCategory(category) }) {
-                    Text("Remove", color = Color.Red)
+                    Text("Remove", color = MaterialTheme.colorScheme.error)
                 }
             }
         }
@@ -168,8 +181,7 @@ fun DrawCategoryCard(
 @Composable
 fun EditCategory(category: Category, onDismiss: () -> Unit, onSave: (Category) -> Unit) {
     var name by remember { mutableStateOf(category.categoryName) }
-    var totalBudget by remember { mutableStateOf("") }
-    var remainingBudget by remember { mutableStateOf(category.budgetRemaining) }
+    var totalBudget by remember { mutableStateOf(category.totalBudget.toString()) }
     var error by remember { mutableStateOf<String?>(null) }
 
     AlertDialog(
@@ -180,7 +192,8 @@ fun EditCategory(category: Category, onDismiss: () -> Unit, onSave: (Category) -
                 TextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Name") }
+                    label = { Text("Name") },
+                    isError = error?.contains("Name") == true
                 )
 
                 Spacer(Modifier.height(8.dp))
@@ -188,11 +201,12 @@ fun EditCategory(category: Category, onDismiss: () -> Unit, onSave: (Category) -
                 TextField(
                     value = totalBudget,
                     onValueChange = { totalBudget = it },
-                    label = { Text("Budget") }
+                    label = { Text("Budget") },
+                    isError = error?.contains("budget") == true
                 )
 
                 if (error != null) {
-                    Text(text = error!!, color = Color.Red, fontSize = 12.sp)
+                    Text(text = error!!, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
                 }
             }
         },
@@ -202,9 +216,8 @@ fun EditCategory(category: Category, onDismiss: () -> Unit, onSave: (Category) -
                 if (name.isBlank()) {
                     error = "Name cannot be empty"
                 } else if (parsedBudget == null || parsedBudget <= 0) {
-                    error = "Invalid budget"
+                    error = "Invalid budget amount"
                 } else {
-
                     onSave(category.copy(categoryName = name, totalBudget = parsedBudget, budgetRemaining = parsedBudget))
                     onDismiss()
                 }

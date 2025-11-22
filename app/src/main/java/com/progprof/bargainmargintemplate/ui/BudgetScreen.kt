@@ -1,16 +1,17 @@
-
 package com.progprof.bargainmargintemplate.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.error
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -21,12 +22,17 @@ fun BudgetScreen(
     budgetViewModel: BudgetViewModel,
     onNextButtonClicked: () -> Unit
 ) {
-    var textInput by remember { mutableStateOf("") }
-    val budget by budgetViewModel.budgetState.collectAsState()
+    val uiState by budgetViewModel.uiState.collectAsState()
+    val month = uiState.selectedMonthWithWeeks?.month
 
-    LaunchedEffect(budget) {
-        if (budget.totalBudget > 0) {
-            textInput = budget.totalBudget.toString()
+    var textInput by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(month) {
+        if (month != null && month.totalBudget > 0) {
+            textInput = month.totalBudget.toBigDecimal().toPlainString()
+        } else {
+            textInput = ""
         }
     }
 
@@ -36,19 +42,37 @@ fun BudgetScreen(
         AppTitle(Modifier)
 
         NumberField(
-            labelText = "What is your budget?",
+            labelText = "What is your total budget for this month?",
             textInput = textInput,
             onValueChange = {
                 textInput = it
-                budgetViewModel.onTotalBudgetChanged(it)
+                errorMessage = null
             },
             modifier = Modifier
                 .padding(bottom = 16.dp)
                 .fillMaxWidth()
         )
 
+        if (errorMessage != null) {
+            Text(
+                text = errorMessage!!,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+        }
+
         CalculateButton(
-            onClick = onNextButtonClicked,
+            onClick = {
+                val newTotal = textInput.toDoubleOrNull()
+                if (newTotal == null || newTotal <= 0) {
+                    errorMessage = "Please enter a valid, positive budget amount."
+                } else {
+
+                    budgetViewModel.createNewMonthBudget(newTotal) {
+                        onNextButtonClicked()
+                    }
+                }
+            },
             modifier = Modifier
         )
     }
