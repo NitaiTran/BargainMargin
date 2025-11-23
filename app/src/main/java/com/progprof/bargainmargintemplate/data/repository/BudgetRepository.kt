@@ -76,4 +76,12 @@ class BudgetRepository(private val db: AppDatabase) {
     suspend fun updateCategory(categoryEntity: CategoryEntity) {
         categoryDao.updateCategory(categoryEntity)
     }
+
+    suspend fun updateMonth(month: MonthEntity) {
+        budgetDao.updateMonth(month)
+    }
+
+    suspend fun updateWeek(week: WeekEntity) {
+        budgetDao.updateWeek(week)
+    }
 }

@@ -23,5 +23,6 @@ data class WeekEntity(
     val monthId: Long,
     val weekNumber: Int,
     val weekBudget: Double,
-    val weekSpent: Double = 0.0
+    val weekSpent: Double = 0.0,
+    val weeklyGoal: Double = 0.0
 )
