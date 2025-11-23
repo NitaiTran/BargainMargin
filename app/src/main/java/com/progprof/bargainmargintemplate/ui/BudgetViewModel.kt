@@ -36,7 +36,9 @@ data class BudgetUiState(
     val allMonths: List<MonthEntity> = emptyList(),
     val selectedYear: Int = Calendar.getInstance().get(Calendar.YEAR),
     val selectedMonth: Int = Calendar.getInstance().get(Calendar.MONTH),
-    val isAddingExpense: Boolean = false
+    val isAddingExpense: Boolean = false,
+    val currentMonthGoal: Double = 0.0,
+    val currentWeekGoal: Double = 0.0
 )
 
 class BudgetViewModel(application: Application) : AndroidViewModel(application) {
@@ -62,7 +64,9 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
             yearAndMonthFlow.flatMapLatest { (year, month) ->
                 repository.getMonthWithWeeks(year, month)
             }.collect { monthWithWeeks ->
-                _uiState.update { it.copy(selectedMonthWithWeeks = monthWithWeeks) }
+                _uiState.update { it.copy(
+                    selectedMonthWithWeeks = monthWithWeeks,
+                    currentMonthGoal = monthWithWeeks?.month?.monthlyGoal ?: 0.0) }
             }
         }
 
@@ -81,7 +85,10 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
                 val expenses = expenseEntities.map {
                     Expense(it.id, it.weekId, it.amountOfExpense, it.descriptionOfExpense, it.categoryOfExpense)
                 }
-                _uiState.update { it.copy(expensesForCurrentWeek = expenses) }
+                _uiState.update {
+                    val currentWeek = it.selectedMonthWithWeeks?.weeks?.find { week -> week.weekNumber == it.currentWeekNumber }
+                    it.copy(expensesForCurrentWeek = expenses,
+                        currentWeekGoal = currentWeek?.weeklyGoal ?: 0.0) }
             }
         }
 
@@ -191,6 +198,26 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             val categoryEntity = com.progprof.bargainmargintemplate.data.local.entities.CategoryEntity(id = oldCategory.id, categoryName = newCategory.categoryName, totalBudget = newCategory.totalBudget, budgetRemaining = newCategory.budgetRemaining)
             repository.updateCategory(categoryEntity)
+        }
+    }
+
+    fun updateMonthGoal(newGoal: Double) {
+        viewModelScope.launch (Dispatchers.IO){
+            val currentMonth = _uiState.value.selectedMonthWithWeeks?.month ?: return@launch
+            if(newGoal >= 0){
+                val updatedMonth = currentMonth.copy(monthlyGoal = newGoal)
+                repository.updateMonth(updatedMonth)
+            }
+        }
+    }
+
+    fun updateWeeklyGoal(weekNumber: Int, newGoal: Double) {
+        viewModelScope.launch (Dispatchers.IO){
+            val weekToUpdate = _uiState.value.selectedMonthWithWeeks?.weeks?.find {it.weekNumber == weekNumber} ?: return@launch
+            if(newGoal >= 0){
+                val updatedWeek = weekToUpdate.copy(weeklyGoal = newGoal)
+                repository.updateWeek(updatedWeek)
+            }
         }
     }
 }
