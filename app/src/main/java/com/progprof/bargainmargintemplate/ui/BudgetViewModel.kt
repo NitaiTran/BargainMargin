@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Calendar
+import kotlin.math.exp
 
 data class Expense(
     val id: Long = 0,
@@ -197,6 +198,18 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
     fun updateCategory(oldCategory: Category, newCategory: Category) {
         viewModelScope.launch {
             val categoryEntity = com.progprof.bargainmargintemplate.data.local.entities.CategoryEntity(id = oldCategory.id, categoryName = newCategory.categoryName, totalBudget = newCategory.totalBudget, budgetRemaining = newCategory.budgetRemaining)
+            repository.updateCategory(categoryEntity)
+        }
+    }
+
+    fun findCategoryByName(categoryName: String) : Category? {
+        return categories.value.find { it.categoryName == categoryName }
+    }
+
+    // NOTE: amount can be positive or negative, if we want to remove from the budget pass a negative value
+    fun updateCategoryRemainingBudget(category: Category, amount: Double) {
+        viewModelScope.launch {
+            val categoryEntity = com.progprof.bargainmargintemplate.data.local.entities.CategoryEntity(id = category.id, categoryName = category.categoryName, totalBudget = category.totalBudget, budgetRemaining = category.budgetRemaining + amount)
             repository.updateCategory(categoryEntity)
         }
     }
