@@ -124,6 +124,7 @@ fun ExpensesScreen(
                         errorMessage = "Please select a category."
                     } else {
                         budgetViewModel.addExpense(amount, descriptionInput, selectedCategory!!.categoryName, selectedWeekForExpense)
+                        budgetViewModel.updateCategoryRemainingBudget(selectedCategory!!, -amount)
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -152,7 +153,10 @@ fun ExpensesScreen(
                 items(expensesForCurrentWeek, key = { it.id }) { expense ->
                     ExpenseItem(
                         expense = expense,
-                        onRemoveClick = { budgetViewModel.removeExpense(expense) }
+                        onRemoveClick = {
+                            budgetViewModel.removeExpense(expense)
+                            budgetViewModel.updateCategoryRemainingBudget(budgetViewModel.findCategoryByName(expense.categoryOfExpense)!!, expense.amountOfExpense)
+                        }
                     )
                 }
             }

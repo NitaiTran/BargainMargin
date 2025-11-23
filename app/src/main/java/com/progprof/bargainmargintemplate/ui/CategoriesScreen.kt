@@ -159,7 +159,12 @@ fun DrawCategoryCard(
             Column(modifier = Modifier.weight(1f)) {
                 Text(category.categoryName, style = MaterialTheme.typography.titleMedium)
                 Text(
-                    text = "Budget: $${"%.2f".format(category.totalBudget)}",
+                    text = "Total Budget: $${"%.2f".format(category.totalBudget)}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
+                )
+                Text(
+                    text = "Remaining Budget: $${"%.2f".format(category.budgetRemaining)}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )
