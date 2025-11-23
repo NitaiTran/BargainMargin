@@ -88,6 +88,13 @@ fun AppTopBar(navController: NavController, budgetViewModel: BudgetViewModel) {
                     onDismissRequest = { showOptionsMenu = false }
                 ) {
                     DropdownMenuItem(
+                        text = { Text("Set Goals") },
+                        onClick = {
+                            navController.navigate("goals") // New route name
+                            showOptionsMenu = false
+                        }
+                    )
+                    DropdownMenuItem(
                         text = { Text("Edit Monthly Budget") },
                         onClick = {
                             navController.navigate(ScreenController.Screen.MainBudgetEntry.name)
@@ -188,6 +195,10 @@ fun AppNavHost(
 
         composable(ScreenController.Screen.Analytics.name) {
             AnalyticsScreen(budgetViewModel = budgetViewModel)
+        }
+
+        composable("goals") {
+            GoalScreen(budgetViewModel = budgetViewModel, navController = navController)
         }
 
     }

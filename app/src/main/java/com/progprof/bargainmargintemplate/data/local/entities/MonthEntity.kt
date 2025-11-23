@@ -15,5 +15,6 @@ data class MonthEntity(
     val year: Int,
     val month: Int,
     val totalBudget: Double,
-    val totalSpent: Double = 0.0
+    val totalSpent: Double = 0.0,
+    val monthlyGoal: Double = 0.0
 )
