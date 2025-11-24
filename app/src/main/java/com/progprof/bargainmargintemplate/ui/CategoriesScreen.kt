@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 
 @Composable
 fun CategoriesScreen(
@@ -20,6 +21,11 @@ fun CategoriesScreen(
 
     val allCategories by budgetViewModel.categories.collectAsState()
     var editingCategory by remember { mutableStateOf<Category?>(null) }
+    var snapshotMessage by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
+
+    val currentYear = remember { java.util.Calendar.getInstance().get(java.util.Calendar.YEAR) }
+    val currentMonth = remember { java.util.Calendar.getInstance().get(java.util.Calendar.MONTH) }
 
     Column(
         modifier = Modifier
@@ -27,6 +33,23 @@ fun CategoriesScreen(
             .padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+
+        // Snapshot trigger button
+        Button(onClick = {
+            snapshotMessage = null
+            // Launch coroutine to generate snapshot
+            scope.launch {
+                budgetViewModel.generateMonthlyCategorySnapshots(currentYear, currentMonth)
+                snapshotMessage = "Category spending snapshot saved for ${currentMonth + 1}/$currentYear"
+            }
+        }) {
+            Text("Save Monthly Category Snapshot")
+        }
+        snapshotMessage?.let {
+            Text(text = it, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(vertical = 8.dp))
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         DrawCategoryInput(onAddCategory = { name, budget ->
             budgetViewModel.addCategory(name, budget)
@@ -126,7 +149,7 @@ fun DrawCategoryInput(onAddCategory: (String, Double) -> Unit) {
             }
 
             if (!isNameInvalid && !isBudgetInvalid) {
-                onAddCategory(categoryName, parsedBudget!!)
+                onAddCategory(categoryName, parsedBudget)
                 nameErrorMessage = null
                 budgetErrorMessage = null
                 categoryName = ""
@@ -236,4 +259,30 @@ fun EditCategory(category: Category, onDismiss: () -> Unit, onSave: (Category) -
             }
         }
     )
+}
+
+@Composable
+fun CategorySpendingHistoryView(categoryId: Int, budgetViewModel: BudgetViewModel) {
+    // Hold spending history state
+    val history by budgetViewModel.getSpendingHistoryForCategory(categoryId).collectAsState(initial = emptyList())
+
+    if (history.isEmpty()) {
+        Text(
+            text = "No history available",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = 16.dp)
+        )
+    } else {
+        Column(modifier = Modifier.padding(start = 16.dp)) {
+            Text("Spending History:", style = MaterialTheme.typography.labelMedium)
+            history.sortedByDescending { it.year * 100 + it.month }.forEach { snapshot ->
+                Text(
+                    "${snapshot.month + 1}/${snapshot.year}: $${"%.2f".format(snapshot.amountSpent)} spent (Budget was $${"%.2f".format(snapshot.totalBudgetAtSnapshot)})",
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(vertical = 2.dp)
+                )
+            }
+        }
+    }
 }

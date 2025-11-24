@@ -74,4 +74,16 @@ interface BudgetDao {
 
     @Query("DELETE FROM expenses WHERE id = :expenseId")
     suspend fun deleteExpenseById(expenseId: Long)
+
+    @Query("""
+    SELECT IFNULL(SUM(e.amountOfExpense), 0) FROM expenses e
+    JOIN weeks w ON e.weekId = w.id
+    JOIN months m ON w.monthId = m.id
+    WHERE e.categoryOfExpense = :categoryName
+    AND m.year = :year
+    AND m.month = :month
+""")
+    suspend fun getTotalSpentByCategoryForMonth(categoryName: String, year: Int, month: Int): Double
+
+
 }

@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.Room
 import com.progprof.bargainmargintemplate.data.local.AppDatabase
+import com.progprof.bargainmargintemplate.data.local.entities.CategorySpendingHistoryEntity
 import com.progprof.bargainmargintemplate.data.local.entities.ExpenseEntity
 import com.progprof.bargainmargintemplate.data.local.entities.MonthEntity
 import com.progprof.bargainmargintemplate.data.local.entities.WeekEntity
@@ -232,4 +233,15 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
             }
         }
     }
+
+    fun getSpendingHistoryForCategory(categoryId: Int): StateFlow<List<CategorySpendingHistoryEntity>> {
+        return repository.getSpendingHistoryForCategory(categoryId)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    }
+
+    fun generateMonthlyCategorySnapshots(year: Int, month: Int) = viewModelScope.launch {
+        repository.generateMonthlyCategorySnapshots(year, month)
+    }
+
+
 }
