@@ -5,10 +5,10 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.Room
 import com.progprof.bargainmargintemplate.data.local.AppDatabase
+import com.progprof.bargainmargintemplate.data.local.entities.CategoryEntity
 import com.progprof.bargainmargintemplate.data.local.entities.CategorySpendingHistoryEntity
 import com.progprof.bargainmargintemplate.data.local.entities.ExpenseEntity
 import com.progprof.bargainmargintemplate.data.local.entities.MonthEntity
-import com.progprof.bargainmargintemplate.data.local.entities.WeekEntity
 import com.progprof.bargainmargintemplate.data.local.relations.MonthWithWeeks
 import com.progprof.bargainmargintemplate.data.repository.BudgetRepository
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Calendar
-import kotlin.math.exp
 
 data class Expense(
     val id: Long = 0,
@@ -54,6 +53,8 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
     private val repository by lazy { BudgetRepository(db) }
     private val _uiState = MutableStateFlow(BudgetUiState())
     val uiState: StateFlow<BudgetUiState> = _uiState.asStateFlow()
+
+    val currentMonthSnapshots = MutableStateFlow<List<CategorySpendingHistoryEntity>>(emptyList())
 
     val categories: StateFlow<List<Category>> = repository.allCategories
         .map { entityList -> entityList.map { Category(it.id, it.categoryName, it.totalBudget, it.budgetRemaining) } }
@@ -190,13 +191,13 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
             repository.insertCategory(newCategoryEntity)
         }
     }
-    fun removeCategory(category: Category) {
+    fun removeCategory(category: CategoryEntity) {
         viewModelScope.launch {
             val categoryEntity = com.progprof.bargainmargintemplate.data.local.entities.CategoryEntity(id = category.id, categoryName = category.categoryName, totalBudget = category.totalBudget, budgetRemaining = category.budgetRemaining)
             repository.deleteCategory(categoryEntity)
         }
     }
-    fun updateCategory(oldCategory: Category, newCategory: Category) {
+    fun updateCategory(oldCategory: CategoryEntity, newCategory: CategoryEntity) {
         viewModelScope.launch {
             val categoryEntity = com.progprof.bargainmargintemplate.data.local.entities.CategoryEntity(id = oldCategory.id, categoryName = newCategory.categoryName, totalBudget = newCategory.totalBudget, budgetRemaining = newCategory.budgetRemaining)
             repository.updateCategory(categoryEntity)
@@ -241,6 +242,17 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
 
     fun generateMonthlyCategorySnapshots(year: Int, month: Int) = viewModelScope.launch {
         repository.generateMonthlyCategorySnapshots(year, month)
+    }
+
+    fun loadCurrentMonthSnapshots() {
+        viewModelScope.launch {
+            val calendar = Calendar.getInstance()
+            val year = calendar.get(Calendar.YEAR)
+            val month = calendar.get(Calendar.MONTH)
+
+            val snapshots = repository.getSnapshotsForMonth(year, month)
+            currentMonthSnapshots.value = snapshots
+        }
     }
 
 

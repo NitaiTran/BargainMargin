@@ -187,11 +187,11 @@ fun AppNavHost(
         }
 
         composable(ScreenController.Screen.WeeklyBudgetEntry.name) {
-            WeeklyBudgetScreen(navController = navController, budgetViewModel = budgetViewModel)
+            WeeklyBudgetScreen(budgetViewModel = budgetViewModel, navController = navController)
         }
 
         composable(ScreenController.Screen.Categories.name) {
-            CategoriesScreen(budgetViewModel = budgetViewModel)
+            CategoriesScreen(budgetViewModel = budgetViewModel, navController = navController)
         }
 
         composable(ScreenController.Screen.Analytics.name) {

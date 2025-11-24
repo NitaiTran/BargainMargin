@@ -116,4 +116,7 @@ class BudgetRepository(private val db: AppDatabase) {
             insertCategorySpendingSnapshot(snapshot)
         }
     }
+    suspend fun getSnapshotsForMonth(year: Int, month: Int): List<CategorySpendingHistoryEntity> {
+        return historyDao.getSnapshotsForMonth(year, month)
+    }
 }

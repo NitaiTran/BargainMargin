@@ -12,11 +12,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.progprof.bargainmargintemplate.data.local.entities.CategoryEntity
+import com.progprof.bargainmargintemplate.data.local.entities.CategorySpendingHistoryEntity
 import kotlinx.coroutines.launch
 
 @Composable
 fun CategoriesScreen(
-    budgetViewModel: BudgetViewModel
+    budgetViewModel: BudgetViewModel,
+    navController: NavController
 ) {
 
     val allCategories by budgetViewModel.categories.collectAsState()
@@ -24,8 +28,21 @@ fun CategoriesScreen(
     var snapshotMessage by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
 
+    // val categories by budgetViewModel.categories.collectAsState()
+    val snapshots by budgetViewModel.currentMonthSnapshots.collectAsState()
+
     val currentYear = remember { java.util.Calendar.getInstance().get(java.util.Calendar.YEAR) }
     val currentMonth = remember { java.util.Calendar.getInstance().get(java.util.Calendar.MONTH) }
+
+    LaunchedEffect(true) {
+        budgetViewModel.loadCurrentMonthSnapshots()
+    }
+
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ){}
+
 
     Column(
         modifier = Modifier
@@ -51,6 +68,16 @@ fun CategoriesScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+            Text("Monthly Category Snapshot", style = MaterialTheme.typography.titleLarge)
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+        SnapshotList(categories = allCategories, snapshots = snapshots)
+
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+
         DrawCategoryInput(onAddCategory = { name, budget ->
             budgetViewModel.addCategory(name, budget)
         })
@@ -65,7 +92,7 @@ fun CategoriesScreen(
                 items(allCategories, key = { it.id }) { category ->
                     DrawCategoryCard(
                         category,
-                        onRemoveCategory = { budgetViewModel.removeCategory(it) },
+                        onRemoveCategory = { budgetViewModel.removeCategory(CategoryEntity(it.id, it.categoryName, it.totalBudget, it.budgetRemaining)) },
                         onEditCategory = { editingCategory = it }
                     )
                 }
@@ -77,7 +104,10 @@ fun CategoriesScreen(
                 category = editingCategory!!,
                 onDismiss = { editingCategory = null },
                 onSave = { updatedCategory ->
-                    budgetViewModel.updateCategory(editingCategory!!, updatedCategory)
+                    budgetViewModel.updateCategory(
+                        CategoryEntity(editingCategory!!.id, editingCategory!!.categoryName, editingCategory!!.totalBudget, editingCategory!!.budgetRemaining),
+                        CategoryEntity(updatedCategory.id, updatedCategory.categoryName, updatedCategory.totalBudget, updatedCategory.budgetRemaining)
+                    )
                     editingCategory = null
                 }
             )
@@ -165,6 +195,7 @@ fun DrawCategoryCard(
     category: Category,
     onRemoveCategory: (Category) -> Unit,
     onEditCategory: (Category) -> Unit
+
 ) {
     Card(
         modifier = Modifier
@@ -281,6 +312,25 @@ fun CategorySpendingHistoryView(categoryId: Int, budgetViewModel: BudgetViewMode
                     "${snapshot.month + 1}/${snapshot.year}: $${"%.2f".format(snapshot.amountSpent)} spent (Budget was $${"%.2f".format(snapshot.totalBudgetAtSnapshot)})",
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(vertical = 2.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun SnapshotList(
+    categories: List<Category>,
+    snapshots: List<CategorySpendingHistoryEntity>
+) {
+    Column {
+        snapshots.forEach { snapshot ->
+            val category = categories.find { it.id == snapshot.categoryId }
+            if (category != null) {
+                Text(
+                    text = "${category.categoryName}: ${snapshot.amountSpent} spent out of ${snapshot.totalBudgetAtSnapshot}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(vertical = 4.dp)
                 )
             }
         }
