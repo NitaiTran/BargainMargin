@@ -95,6 +95,10 @@ class BudgetRepository(private val db: AppDatabase) {
         historyDao.insertSnapshot(snapshot)
     }
 
+    fun getSpendingHistoryForCategory(categoryId: Int): Flow<List<CategorySpendingHistoryEntity>> {
+        return historyDao.getSpendingHistoryForCategory(categoryId)
+    }
+
     suspend fun generateMonthlyCategorySnapshots(year: Int, month: Int) {
         // Query all categories
         val categories = categoryDao.getAllCategories().first()
