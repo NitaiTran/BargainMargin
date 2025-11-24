@@ -4,17 +4,16 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.progprof.bargainmargintemplate.data.local.entities.CategoryEntity
-import com.progprof.bargainmargintemplate.data.local.entities.CategorySpendingHistoryEntity
 import kotlinx.coroutines.launch
 
 @Composable
@@ -85,7 +84,11 @@ fun CategoriesScreen(
 
                         if (snapshots.isNotEmpty()) {
                             Spacer(modifier = Modifier.height(16.dp))
-                            Divider()
+                            HorizontalDivider(
+                                Modifier,
+                                DividerDefaults.Thickness,
+                                DividerDefaults.color
+                            )
                             Spacer(modifier = Modifier.height(12.dp))
 
                             snapshots.forEach { snapshot ->
@@ -251,7 +254,7 @@ fun DrawCategoryInput(onAddCategory: (String, Double) -> Unit) {
             }
 
             if (!isNameInvalid && !isBudgetInvalid) {
-                onAddCategory(categoryName, parsedBudget!!)
+                onAddCategory(categoryName, parsedBudget)
                 nameErrorMessage = null
                 budgetErrorMessage = null
                 categoryName = ""

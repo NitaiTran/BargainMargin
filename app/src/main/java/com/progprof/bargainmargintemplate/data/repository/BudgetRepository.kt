@@ -9,7 +9,6 @@ import com.progprof.bargainmargintemplate.data.local.relations.MonthWithWeeks
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 
-import java.util.Calendar
 import com.progprof.bargainmargintemplate.data.local.entities.CategorySpendingHistoryEntity
 
 
@@ -93,10 +92,6 @@ class BudgetRepository(private val db: AppDatabase) {
 
     suspend fun insertCategorySpendingSnapshot(snapshot: CategorySpendingHistoryEntity) {
         historyDao.insertSnapshot(snapshot)
-    }
-
-    fun getSpendingHistoryForCategory(categoryId: Int): Flow<List<CategorySpendingHistoryEntity>> {
-        return historyDao.getSpendingHistoryForCategory(categoryId)
     }
 
     suspend fun generateMonthlyCategorySnapshots(year: Int, month: Int) {
