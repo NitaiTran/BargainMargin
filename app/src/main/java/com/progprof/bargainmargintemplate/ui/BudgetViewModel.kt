@@ -235,11 +235,6 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    fun getSpendingHistoryForCategory(categoryId: Int): StateFlow<List<CategorySpendingHistoryEntity>> {
-        return repository.getSpendingHistoryForCategory(categoryId)
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-    }
-
     fun generateMonthlyCategorySnapshots(year: Int, month: Int) = viewModelScope.launch {
         repository.generateMonthlyCategorySnapshots(year, month)
     }
