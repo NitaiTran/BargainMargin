@@ -7,12 +7,17 @@ import com.progprof.bargainmargintemplate.data.local.entities.MonthEntity
 import com.progprof.bargainmargintemplate.data.local.entities.WeekEntity
 import com.progprof.bargainmargintemplate.data.local.relations.MonthWithWeeks
 import kotlinx.coroutines.flow.Flow
-import java.util.Calendar
+import kotlinx.coroutines.flow.first
+
+import com.progprof.bargainmargintemplate.data.local.entities.CategorySpendingHistoryEntity
+
 
 class BudgetRepository(private val db: AppDatabase) {
 
     private val budgetDao = db.budgetDao()
     private val categoryDao = db.categoryDao()
+
+    private val historyDao = db.categorySpendingHistoryDao()
 
     fun getMonthWithWeeks(year: Int, month: Int): Flow<MonthWithWeeks?> {
         return budgetDao.getMonthWithWeeks(year, month)
@@ -83,5 +88,30 @@ class BudgetRepository(private val db: AppDatabase) {
 
     suspend fun updateWeek(week: WeekEntity) {
         budgetDao.updateWeek(week)
+    }
+
+    suspend fun insertCategorySpendingSnapshot(snapshot: CategorySpendingHistoryEntity) {
+        historyDao.insertSnapshot(snapshot)
+    }
+
+    suspend fun generateMonthlyCategorySnapshots(year: Int, month: Int) {
+        // Query all categories
+        val categories = categoryDao.getAllCategories().first()
+
+        // For each category, sum expenses for given month
+        categories.forEach { category ->
+            val totalSpent = budgetDao.getTotalSpentByCategoryForMonth(category.categoryName, year, month)
+            val snapshot = CategorySpendingHistoryEntity(
+                categoryId = category.id,
+                year = year,
+                month = month,
+                amountSpent = totalSpent,
+                totalBudgetAtSnapshot = category.totalBudget
+            )
+            insertCategorySpendingSnapshot(snapshot)
+        }
+    }
+    suspend fun getSnapshotsForMonth(year: Int, month: Int): List<CategorySpendingHistoryEntity> {
+        return historyDao.getSnapshotsForMonth(year, month)
     }
 }
