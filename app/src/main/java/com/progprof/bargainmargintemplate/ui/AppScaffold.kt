@@ -1,10 +1,12 @@
 package com.progprof.bargainmargintemplate.ui
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.TrackChanges
@@ -22,6 +24,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import java.text.DateFormatSymbols
 
 data class BottomNavItem(val label: String, val icon: ImageVector, val route: String)
 
@@ -45,46 +48,80 @@ fun AppScaffold() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppTopBar(navController: NavController, budgetViewModel: BudgetViewModel) {
-    var showMenu by remember { mutableStateOf(false) }
-    var showDialog by remember { mutableStateOf(false) }
+    var showOptionsMenu by remember { mutableStateOf(false) }
+    var showWeekDialog by remember { mutableStateOf(false) }
+    var showMonthMenu by remember { mutableStateOf(false) }
+    val uiState by budgetViewModel.uiState.collectAsState()
+
+    val monthSymbols = DateFormatSymbols().months
 
     TopAppBar(
         title = { Text("Bargain Margin") },
         actions = {
-            IconButton(onClick = { showMenu = !showMenu }) {
-                Icon(Icons.Default.MoreVert, contentDescription = "More options")
+            Box {
+                IconButton(onClick = { showMonthMenu = true }) {
+                    Icon(Icons.Default.DateRange, contentDescription = "Select Month")
+                }
+                DropdownMenu(
+                    expanded = showMonthMenu,
+                    onDismissRequest = { showMonthMenu = false }
+                ) {
+                    uiState.allMonths.forEach { month ->
+                        DropdownMenuItem(
+                            text = { Text("${monthSymbols[month.month]} ${month.year}") },
+                            onClick = {
+                                budgetViewModel.changeSelectedMonth(month.year, month.month)
+                                showMonthMenu = false
+                            }
+                        )
+                    }
+                }
             }
-            DropdownMenu(
-                expanded = showMenu,
-                onDismissRequest = { showMenu = false }
-            ) {
-                DropdownMenuItem(
-                    text = { Text("Edit Monthly Budget") },
-                    onClick = {
-                        navController.navigate(ScreenController.Screen.MainBudgetEntry.name)
-                        showMenu = false
-                    }
-                )
-                DropdownMenuItem(
-                    text = { Text("Edit Weekly Budgets") },
-                    onClick = {
-                        navController.navigate(ScreenController.Screen.WeeklyBudgetEntry.name)
-                        showMenu = false
-                    }
-                )
-                DropdownMenuItem(
-                    text = { Text("Change Current Week") },
-                    onClick = {
-                        showDialog = true
-                        // The menu should close when the dialog opens
-                        showMenu = false
-                    }
-                )
+
+
+            Box {
+                IconButton(onClick = { showOptionsMenu = !showOptionsMenu }) {
+                    Icon(Icons.Default.MoreVert, contentDescription = "More options")
+                }
+                DropdownMenu(
+                    expanded = showOptionsMenu,
+                    onDismissRequest = { showOptionsMenu = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Set Goals") },
+                        onClick = {
+                            navController.navigate("goals") // New route name
+                            showOptionsMenu = false
+                        }
+                    )
+
+                    DropdownMenuItem(
+                        text = { Text("Edit Monthly Budget") },
+                        onClick = {
+                            navController.navigate(ScreenController.Screen.MainBudgetEntry.name)
+                            showOptionsMenu = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Edit Weekly Budgets") },
+                        onClick = {
+                            navController.navigate(ScreenController.Screen.WeeklyBudgetEntry.name)
+                            showOptionsMenu = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Change Current Week") },
+                        onClick = {
+                            showWeekDialog = true
+                            showOptionsMenu = false
+                        }
+                    )
+                }
             }
             OptionsDialog(
                 budgetViewModel = budgetViewModel,
-                showDialog = showDialog,
-                onDismissRequest = { showDialog = false },
+                showDialog = showWeekDialog,
+                onDismissRequest = { showWeekDialog = false },
                 onOptionSelected = { /* option handled in dialog */ }
             )
         }
@@ -95,7 +132,7 @@ fun AppTopBar(navController: NavController, budgetViewModel: BudgetViewModel) {
 fun AppBottomBar(navController: NavController) {
     val items = listOf(
         BottomNavItem("Home", Icons.Default.Home, ScreenController.Screen.Home.name),
-        BottomNavItem("Expenses", Icons.Default.TrackChanges, "expenseTracker"),
+        BottomNavItem("Expenses", Icons.Default.TrackChanges, ScreenController.Screen.ExpenseTracker.name),
         BottomNavItem("Categories", Icons.Default.Category, ScreenController.Screen.Categories.name),
         BottomNavItem("Analytics", Icons.Default.Analytics, ScreenController.Screen.Analytics.name)
     )
@@ -138,28 +175,32 @@ fun AppNavHost(
 
         composable(ScreenController.Screen.MainBudgetEntry.name) {
             BudgetScreen(budgetViewModel = budgetViewModel, onNextButtonClicked = {
-                navController.navigate(ScreenController.Screen.Home.name) {
-                    popUpTo(ScreenController.Screen.Home.name) { inclusive = true }
+                navController.navigate(ScreenController.Screen.WeeklyBudgetEntry.name) {
+                    popUpTo(ScreenController.Screen.MainBudgetEntry.name) { inclusive = true }
                 }
             })
         }
 
-        composable("expenseTracker") {
+
+        composable(ScreenController.Screen.ExpenseTracker.name) {
             ExpensesScreen(budgetViewModel = budgetViewModel, navController = navController)
         }
 
         composable(ScreenController.Screen.WeeklyBudgetEntry.name) {
-            WeeklyBudgetScreen(navController = navController, budgetViewModel = budgetViewModel)
+            WeeklyBudgetScreen(budgetViewModel = budgetViewModel, navController = navController)
         }
 
         composable(ScreenController.Screen.Categories.name) {
-            CategoriesScreen(budgetViewModel = budgetViewModel)
+            CategoriesScreen(budgetViewModel = budgetViewModel, navController = navController)
         }
 
         composable(ScreenController.Screen.Analytics.name) {
             AnalyticsScreen(budgetViewModel = budgetViewModel)
         }
 
+        composable("goals") {
+            GoalScreen(budgetViewModel = budgetViewModel, navController = navController)
+        }
     }
 }
 

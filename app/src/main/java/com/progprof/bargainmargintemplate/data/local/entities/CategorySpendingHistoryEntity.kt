@@ -1,28 +1,28 @@
 package com.progprof.bargainmargintemplate.data.local.entities
 
-
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
-    tableName = "expenses",
-    indices = [Index(value = ["weekId"])],
+    tableName = "category_spending_history",
+    indices = [Index(value = ["categoryId", "year", "month"], unique = true)],
     foreignKeys = [
         ForeignKey(
-            entity = WeekEntity::class,
+            entity = CategoryEntity::class,
             parentColumns = ["id"],
-            childColumns = ["weekId"],
+            childColumns = ["categoryId"],
             onDelete = ForeignKey.CASCADE
         )
     ]
 )
-data class ExpenseEntity(
+data class CategorySpendingHistoryEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    val weekId: Long,
-    val amountOfExpense: Double,
-    val descriptionOfExpense: String,
-    val categoryOfExpense: String
+    val categoryId: Int,
+    val year: Int,
+    val month: Int,
+    val amountSpent: Double,
+    val totalBudgetAtSnapshot: Double
 )
