@@ -1,5 +1,6 @@
 package com.progprof.bargainmargintemplate.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
@@ -17,6 +18,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavController
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun HomeScreen(
@@ -60,6 +63,13 @@ fun HomeScreen(
     val weekRemaining = totalWeeklyBudget - spentWeekly
     val weeklyProgress = if (totalWeeklyBudget > 0) (weekRemaining / totalWeeklyBudget).toFloat() else 0f
 
+    val monthlyGoal = uiState.currentMonthGoal
+    val weeklyGoal = uiState.currentWeekGoal
+
+    // Calculate goal marker positions. This represents how much of the budget should be *remaining* to meet the goal.
+    val monthlyGoalProgress = if (totalMonthlyBudget > 0) (monthlyGoal / totalMonthlyBudget).toFloat() else 0f
+    val weeklyGoalProgress = if (totalWeeklyBudget > 0) (weeklyGoal / totalWeeklyBudget).toFloat() else 0f
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -76,14 +86,32 @@ fun HomeScreen(
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 10.dp)
         )
-        LinearProgressIndicator(
-            progress = { monthlyProgress.coerceIn(0f, 1f) },
+
+        BoxWithConstraints(
             modifier = Modifier
                 .height(26.dp)
                 .fillMaxWidth()
                 .padding(bottom = 10.dp)
-        )
+                .clip(MaterialTheme.shapes.extraSmall)
+        ) {
+            LinearProgressIndicator(
+                progress = { monthlyProgress.coerceIn(0f, 1f) },
+                modifier = Modifier.fillMaxSize()
+            )
+            if (monthlyGoal > 0) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(4.dp)
+                        .align(Alignment.CenterStart)
+                        .offset(x = maxWidth * monthlyGoalProgress)
+                        .background(Color.White)
+                )
+            }
+        }
 
+
+        // ... Text for weekly budget is unchanged ...
         Text(text = "Week $currentWeekNumber Budget Remaining: ", style = MaterialTheme.typography.titleMedium)
         Text(
             text = "$${"%.2f".format(weekRemaining)} / $${"%.2f".format(totalWeeklyBudget)}",
@@ -91,18 +119,35 @@ fun HomeScreen(
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 10.dp)
         )
-        LinearProgressIndicator(
-            progress = { weeklyProgress.coerceIn(0f, 1f) },
+
+
+        BoxWithConstraints(
             modifier = Modifier
                 .height(26.dp)
                 .fillMaxWidth()
-                .padding(bottom = 10.dp),
-        )
-        Spacer(modifier = Modifier.height(24.dp))
+                .padding(bottom = 10.dp)
+                .clip(MaterialTheme.shapes.extraSmall)
+        ) {
+            LinearProgressIndicator(
+                progress = { weeklyProgress.coerceIn(0f, 1f) },
+                modifier = Modifier.fillMaxSize()
+            )
+            // Add the weekly goal marker
+            if (weeklyGoal > 0) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(4.dp)
+                        .align(Alignment.CenterStart)
+                        .offset(x = maxWidth * weeklyGoalProgress)
+                        .background(Color.White)
+                )
+            }
+        }
 
+        Spacer(modifier = Modifier.height(24.dp))
         Text("Expenses This Week", style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(8.dp))
-
         if (expensesForCurrentWeek.isEmpty()) {
             Text("No expenses this week", style = MaterialTheme.typography.bodyMedium)
         } else {
