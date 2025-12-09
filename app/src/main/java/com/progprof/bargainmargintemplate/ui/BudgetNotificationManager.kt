@@ -1,7 +1,6 @@
 package com.progprof.bargainmargintemplate.ui
 
 import android.Manifest
-import android.R
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -30,8 +29,6 @@ object BudgetNotificationManager {
     }
 
     fun sendNotification(context: Context, title: String, message: String) {
-
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             val permission = Manifest.permission.POST_NOTIFICATIONS
             if (context.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
@@ -40,7 +37,7 @@ object BudgetNotificationManager {
         }
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_dialog_info) // temporary icon
+            .setSmallIcon(android.R.drawable.ic_dialog_info)  // ← Fixed: added "android." prefix
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -51,6 +48,3 @@ object BudgetNotificationManager {
         }
     }
 }
-
-
-
