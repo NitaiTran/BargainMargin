@@ -31,6 +31,8 @@ fun CategoriesScreen(
     val currentYear = remember { java.util.Calendar.getInstance().get(java.util.Calendar.YEAR) }
     val currentMonth = remember { java.util.Calendar.getInstance().get(java.util.Calendar.MONTH) }
 
+    val uiState by budgetViewModel.uiState.collectAsState()
+
     LaunchedEffect(true) {
         budgetViewModel.loadCurrentMonthSnapshots()
     }
@@ -133,7 +135,9 @@ fun CategoriesScreen(
                         Spacer(modifier = Modifier.height(12.dp))
                         DrawCategoryInput(onAddCategory = { name, budget ->
                             budgetViewModel.addCategory(name, budget)
-                        })
+                        },
+                            uiState.selectedMonthWithWeeks?.month?.totalBudget!!,
+                            budgetViewModel.getTotalCategoryBudget())
                     }
                 }
             }
@@ -189,11 +193,12 @@ fun CategoriesScreen(
 }
 
 @Composable
-fun DrawCategoryInput(onAddCategory: (String, Double) -> Unit) {
+fun DrawCategoryInput(onAddCategory: (String, Double) -> Unit, monthlyTotal: Double, categoryBudgetTotal: Double) {
     var categoryName by remember { mutableStateOf("") }
     var categoryBudget by remember { mutableStateOf("") }
     var nameErrorMessage by remember { mutableStateOf<String?>(null) }
     var budgetErrorMessage by remember { mutableStateOf<String?>(null) }
+    var exceedBudgetErrorMessage by remember {mutableStateOf<String?>(null)}
 
     TextField(
         modifier = Modifier.fillMaxWidth(),
@@ -237,6 +242,15 @@ fun DrawCategoryInput(onAddCategory: (String, Double) -> Unit) {
         )
     }
 
+    if (exceedBudgetErrorMessage != null) {
+        Text(
+            text = exceedBudgetErrorMessage!!,
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(top = 4.dp)
+        )
+    }
+
     Spacer(modifier = Modifier.height(12.dp))
 
     Button(
@@ -245,18 +259,26 @@ fun DrawCategoryInput(onAddCategory: (String, Double) -> Unit) {
             val parsedBudget = categoryBudget.toDoubleOrNull()
             val isNameInvalid = categoryName.isBlank()
             val isBudgetInvalid = parsedBudget == null || parsedBudget <= 0
+            var isBudgetExceeded = false
 
             if (isNameInvalid) {
                 nameErrorMessage = "Category name cannot be empty"
             }
+
             if (isBudgetInvalid) {
                 budgetErrorMessage = "Budget must be a valid, positive number"
             }
 
-            if (!isNameInvalid && !isBudgetInvalid) {
+            if (categoryBudgetTotal + parsedBudget!! > monthlyTotal) {
+                isBudgetExceeded = true
+                exceedBudgetErrorMessage = "Category sum cannot exceed monthly budget"
+            }
+
+            if (!isNameInvalid && !isBudgetInvalid && !isBudgetExceeded) {
                 onAddCategory(categoryName, parsedBudget)
                 nameErrorMessage = null
                 budgetErrorMessage = null
+                exceedBudgetErrorMessage = null
                 categoryName = ""
                 categoryBudget = ""
             }

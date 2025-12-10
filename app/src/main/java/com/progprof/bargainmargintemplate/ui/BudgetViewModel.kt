@@ -309,6 +309,9 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
             repository.deleteCategory(categoryEntity)
         }
     }
+    fun getTotalCategoryBudget() : Double {
+        return categories.value.sumOf{it.totalBudget}
+    }
     fun updateCategory(oldCategory: CategoryEntity, newCategory: CategoryEntity) {
         viewModelScope.launch {
             val categoryEntity = com.progprof.bargainmargintemplate.data.local.entities.CategoryEntity(id = oldCategory.id, categoryName = newCategory.categoryName, totalBudget = newCategory.totalBudget, budgetRemaining = newCategory.budgetRemaining)
