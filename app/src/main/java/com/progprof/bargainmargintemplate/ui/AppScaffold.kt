@@ -1,7 +1,9 @@
 package com.progprof.bargainmargintemplate.ui
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Analytics
@@ -16,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -24,6 +27,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.progprof.bargainmargintemplate.data.local.entities.MonthEntity
 import java.text.DateFormatSymbols
 
 data class BottomNavItem(val label: String, val icon: ImageVector, val route: String)
@@ -62,20 +66,15 @@ fun AppTopBar(navController: NavController, budgetViewModel: BudgetViewModel) {
                 IconButton(onClick = { showMonthMenu = true }) {
                     Icon(Icons.Default.DateRange, contentDescription = "Select Month")
                 }
-                DropdownMenu(
-                    expanded = showMonthMenu,
-                    onDismissRequest = { showMonthMenu = false }
-                ) {
-                    uiState.allMonths.forEach { month ->
-                        DropdownMenuItem(
-                            text = { Text("${monthSymbols[month.month]} ${month.year}") },
-                            onClick = {
-                                budgetViewModel.changeSelectedMonth(month.year, month.month)
-                                showMonthMenu = false
-                            }
-                        )
+                MonthSelectionDialog(
+                    showDialog = showMonthMenu,
+                    onDismissRequest = { showMonthMenu = false },
+                    allMonths = uiState.allMonths,
+                    onMonthSelected = { year, month ->
+                        budgetViewModel.changeSelectedMonth(year, month)
+                        showMonthMenu = false
                     }
-                }
+                )
             }
 
 
@@ -164,11 +163,21 @@ fun AppNavHost(
     budgetViewModel: BudgetViewModel,
     modifier: Modifier = Modifier
 ) {
+        val uiState by budgetViewModel.uiState.collectAsState()
+        val selectedMonthWithWeeks = uiState.selectedMonthWithWeeks
+        var startingDestination = ScreenController.Screen.Home.name
+        if(selectedMonthWithWeeks == null || selectedMonthWithWeeks.weeks.isEmpty())
+        {
+            startingDestination = ScreenController.Screen.MainBudgetEntry.name
+        }
+
     NavHost(
         navController = navController,
-        startDestination = ScreenController.Screen.Home.name,
+        startDestination = startingDestination,
         modifier = modifier
+
     ) {
+
         composable(ScreenController.Screen.Home.name) {
             HomeScreen(budgetViewModel = budgetViewModel, navController = navController)
         }
@@ -225,6 +234,45 @@ fun OptionsDialog(
                             onDismissRequest()
                         }) {
                             Text("Week $week")
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = onDismissRequest) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+}
+@Composable
+fun MonthSelectionDialog(
+    showDialog: Boolean,
+    onDismissRequest: () -> Unit,
+    allMonths: List<MonthEntity>,
+    onMonthSelected: (year: Int, month: Int) -> Unit
+) {
+    if (showDialog) {
+        val monthSymbols = remember { DateFormatSymbols().months }
+
+        AlertDialog(
+            onDismissRequest = onDismissRequest,
+            title = { Text("Select a Month") },
+            text = {
+                androidx.compose.foundation.lazy.grid.LazyVerticalGrid(
+                    columns = androidx.compose.foundation.lazy.grid.GridCells.Fixed(3), // 3 columns
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(allMonths.size) { index ->
+                        val month = allMonths[index]
+                        Button(
+                            onClick = { onMonthSelected(month.year, month.month) },
+                            modifier = Modifier.padding(2.dp)
+                        ) {
+                            Text("${monthSymbols[month.month].take(3)} ${month.year.toString().takeLast(2)}")
                         }
                     }
                 }

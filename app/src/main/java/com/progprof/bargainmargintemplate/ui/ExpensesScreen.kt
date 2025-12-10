@@ -13,6 +13,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -68,16 +69,24 @@ fun ExpensesScreen(
         Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
             Text("Expense Tracker", style = MaterialTheme.typography.headlineMedium)
             Spacer(modifier = Modifier.height(16.dp))
-            Text("Total Monthly Budget: $${"%.2f".format(month.totalBudget)}")
+            Text(
+                text = "Total Monthly Budget: $${"%.2f".format(month.totalBudget)}",
+                fontWeight = FontWeight.Bold
+            )
             Text(
                 text = "Monthly Remaining: $${"%.2f".format(month.totalBudget - month.totalSpent)}",
-                color = if ((month.totalBudget - month.totalSpent) < 0) MaterialTheme.colorScheme.error else Color.Unspecified
+                color = if ((month.totalBudget - month.totalSpent) < 0) MaterialTheme.colorScheme.error else Color.Unspecified,
+                fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(16.dp))
-            Text("Week $currentWeekNumber Budget: $${"%.2f".format(currentWeek.weekBudget)}")
+            Text(
+                text = "Week $currentWeekNumber Budget: $${"%.2f".format(currentWeek.weekBudget)}",
+                fontWeight = FontWeight.Bold
+            )
             Text(
                 text = "Week $currentWeekNumber Remaining: $${"%.2f".format(currentWeek.weekBudget - currentWeek.weekSpent)}",
-                color = if ((currentWeek.weekBudget - currentWeek.weekSpent) < 0) MaterialTheme.colorScheme.error else Color.Unspecified
+                color = if ((currentWeek.weekBudget - currentWeek.weekSpent) < 0) MaterialTheme.colorScheme.error else Color.Unspecified,
+                fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -98,7 +107,7 @@ fun ExpensesScreen(
             Spacer(modifier = Modifier.height(8.dp))
             WeekDropdown(
                 selectedWeek = selectedWeekForExpense,
-                onWeekSelected = { selectedWeekForExpense = it }
+                budgetViewModel = budgetViewModel
             )
             Spacer(modifier = Modifier.height(8.dp))
             CategoryDropdown(
@@ -118,11 +127,13 @@ fun ExpensesScreen(
                     if (isAddingExpense) {
                     } else if (amount == null || amount <= 0) {
                         errorMessage = "Please enter a valid expense amount."
-                    } else if (descriptionInput.isBlank()) {
-                        errorMessage = "Description cannot be empty."
                     } else if (selectedCategory == null) {
                         errorMessage = "Please select a category."
                     } else {
+                        if(descriptionInput.isBlank())
+                        {
+                            descriptionInput = "[No Description]"
+                        }
                         budgetViewModel.addExpense(amount, descriptionInput, selectedCategory!!.categoryName, selectedWeekForExpense)
                         budgetViewModel.updateCategoryRemainingBudget(selectedCategory!!, -amount)
                     }
@@ -246,7 +257,7 @@ fun CategoryDropdown(
 @Composable
 fun WeekDropdown(
     selectedWeek: Int,
-    onWeekSelected: (Int) -> Unit,
+    budgetViewModel: BudgetViewModel,
     modifier: Modifier = Modifier
 ) {
     var isExpanded by remember { mutableStateOf(false) }
@@ -275,7 +286,7 @@ fun WeekDropdown(
                 DropdownMenuItem(
                     text = { Text("Week $weekNumber") },
                     onClick = {
-                        onWeekSelected(weekNumber)
+                        budgetViewModel.changeCurrentWeek(weekNumber)
                         isExpanded = false
                     }
                 )

@@ -107,7 +107,8 @@ fun DrawPieChart(modifier: Modifier = Modifier, categoryList: List<Category>, to
                 }
             }
         }
-        Text(text = "$${"%.2f".format(totalMonthlyBudget)}", fontSize = 24.sp)
+
+        Text(text = "$${"%.2f".format(categoryList.sumOf { it.budgetRemaining })}", fontSize = 24.sp)
     }
 }
 
@@ -127,7 +128,7 @@ fun DrawAllPercentageBars(categoryList: List<Category>, totalMonthlyBudget: Doub
     Column {
         categoryList.forEachIndexed { index, category ->
             val barColor = colorsArray[index % colorsArray.size]
-            val percentage = (category.totalBudget.toFloat() / totalBudgetFloat)
+            val percentage = (category.budgetRemaining / category.totalBudget).toFloat()
             DrawBudgetPercentBar(percentage, barColor, category.categoryName)
         }
     }
@@ -154,6 +155,6 @@ fun DrawBudgetPercentBar(percentage: Float, color: Color, label: String) {
                     .background(color)
             )
         }
-        Text(text = " ${"%.0f".format(percentage * 100)}%", modifier = Modifier.padding(start = 8.dp))
+        //Text(text = " ${"%.0f".format(percentage * 100)}%", modifier = Modifier.padding(start = 8.dp))
     }
 }

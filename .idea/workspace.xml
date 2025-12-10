@@ -4,33 +4,20 @@
     <shared>
       <config />
     </shared>
+    <layouts>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/drawable/ic_launcher_foreground.xml">
+        <config>
+          <theme>@style/Theme.BargainMargin</theme>
+        </config>
+      </layout>
+    </layouts>
   </component>
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a60b997b-16cd-49de-a84e-689e7ce6c120" name="Changes" comment="Added Month and Week database entities. They don't do anything yet">
-      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" afterDir="false" />
+    <list default="true" id="a60b997b-16cd-49de-a84e-689e7ce6c120" name="Changes" comment="Calendar is now in a grid format. You are defaulted to put in a budget if the current month doesnt have one. Descriptions are no longer required when putting in expenses">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/MainActivity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/PersistentData.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/PersistentData.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/data/local/AppDatabase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/data/local/AppDatabase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/data/local/dao/BudgetDao.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/data/local/dao/BudgetDao.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/data/local/dao/ExpenseDao.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/data/local/dao/ExpenseDao.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/data/local/dao/MonthDao.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/data/local/dao/MonthDao.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/data/local/dao/WeekDao.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/data/local/dao/WeekDao.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/data/local/entities/BudgetEntity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/data/local/entities/BudgetEntity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/data/local/entities/MonthEntity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/data/local/entities/MonthEntity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/data/local/entities/WeekEntity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/data/local/entities/WeekEntity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/data/repository/BudgetRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/data/repository/BudgetRepository.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/AnalyticsScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/AnalyticsScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/AppScaffold.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/AppScaffold.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/BudgetScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/BudgetScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/BudgetViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/BudgetViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/ExpensesScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/ExpensesScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/HomeScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/HomeScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/WeeklyBudgetScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/progprof/bargainmargintemplate/ui/WeeklyBudgetScreen.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,14 +54,13 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Kotlin Class" />
-        <option value="Kotlin File" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="main" />
+        <entry key="$PROJECT_DIR$" value="develop" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -85,28 +71,10 @@
     &quot;assignee&quot;: &quot;delgadodanny&quot;
   }
 }</component>
-  <component name="GitHubPullRequestState">{
-  &quot;prStates&quot;: [
-    {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOPwcsrs6xt3Gz&quot;,
-        &quot;number&quot;: 64
-      },
-      &quot;lastSeen&quot;: 1762368447522
-    },
-    {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDOPwcsrs6y5JiP&quot;,
-        &quot;number&quot;: 77
-      },
-      &quot;lastSeen&quot;: 1762939990092
-    }
-  ]
-}</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/NitaiTran/BargainMargin&quot;,
-    &quot;accountId&quot;: &quot;2eed9554-ce6f-4005-8c2a-7853248708fa&quot;
+    &quot;url&quot;: &quot;https://github.com/NitaiTran/BargainMargin.git&quot;,
+    &quot;accountId&quot;: &quot;d395194a-05cb-4655-86b8-931690049980&quot;
   },
   &quot;recentNewPullRequestHead&quot;: {
     &quot;server&quot;: {
@@ -133,35 +101,32 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Android App.BargainMarginApp.executor&quot;: &quot;Run&quot;,
-    &quot;Android App.BargainMarginTemplate.executor&quot;: &quot;Run&quot;,
-    &quot;Android App.app.executor&quot;: &quot;Run&quot;,
-    &quot;ResourceManagerPrefKey.ModuleName&quot;: &quot;Bargain_Margin.app.main&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Sprint4Nitai&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/nitai/AndroidStudioProjects/BargainMargin/app/src/main/java/com/progprof/bargainmargintemplate/ui&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;live.edit.configurable&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Android App.BargainMarginApp.executor": "Run",
+    "Android App.BargainMarginTemplate.executor": "Run",
+    "Android App.app.executor": "Run",
+    "ResourceManagerPrefKey.ModuleName": "Bargain_Margin.app.main",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "com.google.services.firebase.aqiPopupShown": "true",
+    "git-widget-placeholder": "Sprint5Nitai",
+    "last_opened_file_path": "C:/Users/nitai/AndroidStudioProjects/BargainMargin/app/src/main/java/com/progprof/bargainmargintemplate/ui",
+    "settings.editor.selected.configurable": "live.edit.configurable"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\nitai\AndroidStudioProjects\BargainMargin\app\src\main\java\com\progprof\bargainmargintemplate\ui" />
       <recent name="C:\Users\nitai\AndroidStudioProjects\BargainMargin\app\src\main\res\values" />
       <recent name="C:\Users\nitai\AndroidStudioProjects\BargainMargin" />
       <recent name="C:\Users\nitai\AndroidStudioProjects\BargainMargin\app\src\main\java\com\progprof\bargainmargintemplate" />
-    </key>
-    <key name="CopyKotlinDeclarationDialog.RECENTS_KEY">
-      <recent name="com.progprof.bargainmargintemplate.data.local.dao" />
-      <recent name="com.progprof.bargainmargintemplate.data.local.entities" />
     </key>
   </component>
   <component name="RunManager">
@@ -278,23 +243,7 @@
       <option name="project" value="LOCAL" />
       <updated>1762220797790</updated>
     </task>
-    <task id="LOCAL-00005" summary="Removing .gitignore files">
-      <option name="closed" value="true" />
-      <created>1762940118448</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1762940118448</updated>
-    </task>
-    <task id="LOCAL-00006" summary="Added Month and Week database entities. They don't do anything yet">
-      <option name="closed" value="true" />
-      <created>1763407693321</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1763407693321</updated>
-    </task>
-    <option name="localTasksCounter" value="7" />
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -326,19 +275,20 @@
     <MESSAGE value="Edited how the app navigates so you start with the budget screen and THEN going to home" />
     <MESSAGE value="Removing .gitignore files" />
     <MESSAGE value="Added Month and Week database entities. They don't do anything yet" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added Month and Week database entities. They don't do anything yet" />
+    <MESSAGE value="Calendar is now in a grid format. You are defaulted to put in a budget if the current month doesnt have one. Descriptions are no longer required when putting in expenses" />
+    <option name="LAST_COMMIT_MESSAGE" value="Calendar is now in a grid format. You are defaulted to put in a budget if the current month doesnt have one. Descriptions are no longer required when putting in expenses" />
   </component>
   <component name="play_dynamic_filters_status">
     <option name="appIdToCheckInfo">
       <map>
         <entry key="com.progprof.bargainmargintemplate">
           <value>
-            <CheckInfo lastCheckTimestamp="1761883956347" />
+            <CheckInfo lastCheckTimestamp="1765345140046" />
           </value>
         </entry>
         <entry key="com.progprof.bargainmargintemplate.test">
           <value>
-            <CheckInfo lastCheckTimestamp="1761883956347" />
+            <CheckInfo lastCheckTimestamp="1765345140046" />
           </value>
         </entry>
       </map>
