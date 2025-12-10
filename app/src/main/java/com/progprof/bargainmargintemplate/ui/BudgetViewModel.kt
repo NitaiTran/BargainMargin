@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Calendar
+import java.util.Locale
+import kotlin.math.abs
 
 data class Expense(
     val id: Long = 0,
@@ -103,6 +105,104 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
                 }
             }
         }
+        // Monitor categories for low budget warnings
+        viewModelScope.launch {
+            categories.collect { categoryList ->
+                checkCategoryBudgets(categoryList)
+            }
+        }
+
+    }
+
+    private fun checkCategoryBudgets(categoryList: List<Category>) {
+        categoryList.forEach { category ->
+            if (category.totalBudget > 0) {
+                val percentageRemaining = (category.budgetRemaining / category.totalBudget) * 100
+
+                when {
+                    percentageRemaining <= 10 && category.budgetRemaining > 0 -> {
+                        BudgetNotificationManager.sendNotification(
+                            getApplication(),
+                            " ${category.categoryName} Budget Critical",
+                            "Only $${String.format(Locale.US, "%.2f", category.budgetRemaining)} remaining (${String.format(Locale.US, "%.0f", percentageRemaining)}%)"
+                        )
+                    }
+                    percentageRemaining <= 25 && percentageRemaining > 10 -> {
+                        BudgetNotificationManager.sendNotification(
+                            getApplication(),
+                            " ${category.categoryName} Budget Low",
+                            "Only $${String.format(Locale.US, "%.2f", category.budgetRemaining)} remaining (${String.format(Locale.US, "%.0f", percentageRemaining)}%)"
+                        )
+                    }
+                    category.budgetRemaining <= 0 -> {
+                        BudgetNotificationManager.sendNotification(
+                            getApplication(),
+                            " ${category.categoryName} Budget Exceeded",
+                            "You've exceeded your budget by $${String.format(Locale.US, "%.2f",
+                                abs(category.budgetRemaining)
+                            )}"
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun checkWeeklyBudget(weekSpent: Double, weekBudget: Double, weekNumber: Int) {
+        if (weekBudget > 0) {
+            val percentageUsed = (weekSpent / weekBudget) * 100
+            val remaining = weekBudget - weekSpent
+
+            when {
+                percentageUsed >= 100 -> {
+                    BudgetNotificationManager.sendNotification(
+                        getApplication(),
+                        "Week $weekNumber Budget Exceeded",
+                        "You've spent $${String.format(Locale.US, "%.2f", weekSpent)} of $${String.format(Locale.US, "%.2f", weekBudget)}"
+                    )
+                }
+                percentageUsed >= 75 && percentageUsed < 100 -> {
+                    BudgetNotificationManager.sendNotification(
+                        getApplication(),
+                        "Week $weekNumber Budget Alert",
+                        "You've used ${String.format(Locale.US, "%.0f", percentageUsed)}% of your budget. $${String.format(Locale.US, "%.2f", remaining)} remaining"
+                    )
+                }
+            }
+
+
+        }
+    }
+
+    private fun checkMonthlyBudget(monthSpent: Double, monthBudget: Double) {
+        if (monthBudget > 0) {
+            val percentageUsed = (monthSpent / monthBudget) * 100
+            val remaining = monthBudget - monthSpent
+
+            when {
+                percentageUsed >= 100 -> {
+                    BudgetNotificationManager.sendNotification(
+                        getApplication(),
+                        "Monthly Budget Exceeded",
+                        "You've spent $${String.format(Locale.US, "%.2f", monthSpent)} of $${String.format(Locale.US, "%.2f", monthBudget)}"
+                    )
+                }
+                percentageUsed >= 90 && percentageUsed < 100 -> {
+                    BudgetNotificationManager.sendNotification(
+                        getApplication(),
+                        "Monthly Budget Critical",
+                        "You've used ${String.format(Locale.US, "%.0f", percentageUsed)}% of your budget. $${String.format(Locale.US, "%.2f", remaining)} remaining"
+                    )
+                }
+                percentageUsed >= 75 -> {
+                    BudgetNotificationManager.sendNotification(
+                        getApplication(),
+                        "Monthly Budget Alert",
+                        "You've used ${String.format(Locale.US, "%.0f", percentageUsed)}% of your budget. $${String.format(Locale.US, "%.2f", remaining)} remaining"
+                    )
+                }
+            }
+        }
     }
 
     fun changeSelectedMonth(year: Int, month: Int) {
@@ -149,6 +249,18 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
                         categoryOfExpense = category
                     )
                     repository.insertExpenseAndUpdateTotals(newExpenseEntity)
+
+                    // Check weekly budget
+                    val totalWeekSpent = currentState.expensesForCurrentWeek.sumOf { it.amountOfExpense } + amount
+                    checkWeeklyBudget(totalWeekSpent, week.weekBudget, weekNumber)
+
+                    // Check monthly budget - calculate total across all weeks
+                    var monthTotalSpent = 0.0
+                    currentState.selectedMonthWithWeeks.weeks.forEach { w ->
+                        val weekExpenses = repository.getExpensesForWeek(w.id).first()
+                        monthTotalSpent += weekExpenses.sumOf { it.amountOfExpense }
+                    }
+                    checkMonthlyBudget(monthTotalSpent, currentState.currentMonthGoal)
                 }
             } finally {
                 withContext(Dispatchers.Main) {
